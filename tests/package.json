@@ -1,0 +1,7 @@
+{
+  "name": "smart-stock-browser-validation",
+  "private": true,
+  "type": "module",
+  "scripts": { "test": "node browser.mjs", "test:design": "node browser-design.mjs" },
+  "devDependencies": { "playwright": "1.62.1" }
+}
