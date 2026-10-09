@@ -1,0 +1,20 @@
+# Le .venv déjà suivi est conservé : ignorer ne retire pas les fichiers de Git.
+.venv/
+.venv-local/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.env
+.env.*
+!.env.example
+runtime/
+artifacts/
+**/app/artifacts/
+**/artifacts/
+frontend/node_modules/
+tests/node_modules/
+tests/.npm-cache/
+frontend/dist/
+.npm-cache/
+frontend/.npm-cache/
+*.log

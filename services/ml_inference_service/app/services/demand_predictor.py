@@ -32,9 +32,22 @@ class DemandPredictor:
 
             lag_1, lag_2, lag_3, lag_4 = y[-1], y[-2], y[-3], y[-4]
             roll_mean_4 = float(np.mean([lag_1, lag_2, lag_3, lag_4]))
-            roll_std_4 = float(np.std([lag_1, lag_2, lag_3, lag_4]))
+            roll_std_4 = float(np.std([lag_1, lag_2, lag_3, lag_4], ddof=1))
 
-            X = np.array([[float(product_id), lag_1, lag_2, lag_3, lag_4, roll_mean_4, roll_std_4]], dtype=float)
+            X = np.array(
+                [
+                    [
+                        float(product_id),
+                        lag_1,
+                        lag_2,
+                        lag_3,
+                        lag_4,
+                        roll_mean_4,
+                        roll_std_4,
+                    ]
+                ],
+                dtype=float,
+            )
 
             p10 = float(max(0.0, m10.predict(X)[0]))
             p50 = float(max(0.0, m50.predict(X)[0]))
@@ -49,9 +62,18 @@ class DemandPredictor:
                 "source": "ML_QUANTILE_GBR",
             }
 
-        except Exception:
+        except Exception as ml_error:
             # 3) Fallback baseline (si dispo)
-            demand_model = self.store.load_latest("demand", "demand_weekly_")
+            try:
+                demand_model = self.store.load_latest("demand", "demand_weekly_")
+            except (FileNotFoundError, ValueError):
+                return {
+                    "product_id": product_id,
+                    "status": "unavailable",
+                    "source": "NO_MODEL",
+                    "explanation": "Aucun modèle local utilisable; lancer un entraînement explicitement.",
+                    "fallback_reason": type(ml_error).__name__,
+                }
             stats = demand_model.per_product.get(product_id)
 
             if not stats:
@@ -71,4 +93,5 @@ class DemandPredictor:
                 "p90": float(stats["p90"]),
                 "explanation": f"Prévision de secours (baseline) basée sur l'historique (history_weeks={stats['history_weeks']}).",
                 "source": "BASELINE",
+                "fallback_reason": type(ml_error).__name__,
             }

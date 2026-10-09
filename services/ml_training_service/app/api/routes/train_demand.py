@@ -1,19 +1,21 @@
 from fastapi import APIRouter
-from joblib import dump
+from ...services.artifacts import dump
 from datetime import datetime
 import json
 
-from ...core.config import DATA_DIR, MODELS_DIR, REPORTS_DIR
+from ...core.config import DATA_DIR, MODELS_DIR, REPORTS_DIR, ensure_output_dirs
 from ...services.datasets import load_csv
 from ...services.demand_ml_trainer import train_demand_ml
 
 router = APIRouter(prefix="/train")
+
 
 @router.post("/demand-ml")
 def train_demand_ml_endpoint():
     sales = load_csv(DATA_DIR / "sales.csv")
 
     artifacts = train_demand_ml(sales)
+    ensure_output_dirs()
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
 
     dump(artifacts.model_p10, MODELS_DIR / f"demand_ml_p10_{ts}.joblib")
@@ -28,7 +30,9 @@ def train_demand_ml_endpoint():
             "p10": f"demand_ml_p10_{ts}.joblib",
             "p50": f"demand_ml_p50_{ts}.joblib",
             "p90": f"demand_ml_p90_{ts}.joblib",
-        }
+        },
     }
-    (REPORTS_DIR / f"demand_ml_meta_{ts}.json").write_text(json.dumps(meta, ensure_ascii=False, indent=2))
+    (REPORTS_DIR / f"demand_ml_meta_{ts}.json").write_text(
+        json.dumps(meta, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     return {"status": "ok", "meta": meta}

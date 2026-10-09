@@ -9,6 +9,7 @@ router = APIRouter(prefix="/recommend")
 store = ModelStore(MODELS_DIR)
 engine = PriceMLRecommender(store=store, reports_dir=REPORTS_DIR)
 
+
 @router.get("/price/{product_id}")
 def recommend_price(product_id: int):
     try:
@@ -25,9 +26,21 @@ def recommend_price(product_id: int):
             product=prod_row.iloc[0].to_dict(),
             sales=sales,
             competitor_prices=competitor_prices,
-            promotions=promotions
+            promotions=promotions,
         )
     except HTTPException:
         raise
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=503,
+            detail="Données ou modèles locaux absents; recommandation indisponible.",
+        )
+    except ValueError:
+        raise HTTPException(
+            status_code=503,
+            detail="Modèle non utilisable ou historique insuffisant; recommandation indisponible.",
+        )
+    except Exception:
+        raise HTTPException(
+            status_code=500, detail="Erreur de calcul ML; aucun résultat disponible."
+        )

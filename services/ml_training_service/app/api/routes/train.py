@@ -1,9 +1,9 @@
 from fastapi import APIRouter
-from joblib import dump
+from ...services.artifacts import dump
 from datetime import datetime
 import json
 
-from ...core.config import DATA_DIR, MODELS_DIR, REPORTS_DIR
+from ...core.config import DATA_DIR, MODELS_DIR, REPORTS_DIR, ensure_output_dirs
 from ...services.datasets import load_all
 from ...services.train_baselines import (
     build_weekly_sales,
@@ -15,6 +15,7 @@ from ...services.train_baselines import (
 
 router = APIRouter(prefix="/train")
 
+
 @router.post("/all")
 def train_all(horizon_weeks: int = 4):
     data = load_all(DATA_DIR)
@@ -25,6 +26,7 @@ def train_all(horizon_weeks: int = 4):
     restock_rules = train_restock_rules(data["products"], data["product_suppliers"])
     anomaly_rules = train_anomaly_rules()
 
+    ensure_output_dirs()
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
 
     dump(demand_model, MODELS_DIR / f"demand_weekly_{ts}.joblib")
@@ -47,5 +49,7 @@ def train_all(horizon_weeks: int = 4):
             "competitor_prices_rows": int(len(data["competitor_prices"])),
         },
     }
-    (REPORTS_DIR / f"train_report_{ts}.json").write_text(json.dumps(report, ensure_ascii=False, indent=2))
+    (REPORTS_DIR / f"train_report_{ts}.json").write_text(
+        json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     return {"status": "ok", "report": report}
