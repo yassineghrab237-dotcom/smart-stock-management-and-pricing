@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "checks": [
+    "Vite proxy CSRF same-origin",
+    "Frontend compilé vérifié à127.0.0.1:8000, menu design absent",
+    "Design : notification, chargement, dialogue partagé, Escape et focus",
+    "Création collaborateur depuis UI",
+    "Connexion VIEWER après ADMIN sans écran vide",
+    "Actions masquées et refus serveur403 VIEWER"
+  ],
+  "jsErrors": []
+}

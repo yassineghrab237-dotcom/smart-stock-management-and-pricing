@@ -1,0 +1,21 @@
+{
+  "date": "2026-10-09T17:44:28.056Z",
+  "checks": [
+    "Premier administrateur créé depuis le frontend",
+    "Produit persistant après rechargement, recherche SKU et filtre stock",
+    "Entrée100, sortie15, entrée20 : stock105 et 3 mouvements serveur/UI",
+    "Retour à la liste conserve le contexte, alerte résolue",
+    "Produits/dialogue 1440px sans débordement, opérations réelles, sortie excessive refusée, Tab/Escape",
+    "Produits/dialogue 768px sans débordement, opérations réelles, sortie excessive refusée, Tab/Escape",
+    "Produits/dialogue 390px sans débordement, opérations réelles, sortie excessive refusée, Tab/Escape",
+    "Prix4 décimales persistant, historique, recommandation ML indisponible explicite",
+    "Conflit de prix409 conserve saisie/motif puis reconfirmation explicite",
+    "Réponse perdue après commit : saisie conservée et retry sans doublon",
+    "Ajustements tracés, alerte déclenchée à2 puis résolue à105",
+    "Erreur réseau catalogue et reprise par Réessayer",
+    "Session invalidée serveur : retour connexion ; /design production404"
+  ],
+  "jsErrors": [],
+  "mode": "Base SQLite QA isolée, aucun déploiement",
+  "database": "runtime\\browser-qa-1791567860904"
+}

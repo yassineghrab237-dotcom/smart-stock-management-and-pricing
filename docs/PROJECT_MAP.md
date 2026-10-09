@@ -1,0 +1,103 @@
+# Carte du projet
+
+État local de reprise du 9 octobre 2026, à partir du commit initial 5b60a03. Le backend ML est conservé ; les fichiers vides du cœur ont été complétés sans remplacer le dépôt distant.
+
+## Points d'entrée
+
+| Partie | Entrée | Rôle |
+|---|---|---|
+| Application locale | services/api_gateway/app/main.py | create_app(db_path), middleware, routes /api, frontend compilé |
+| Frontend | frontend/src/main.tsx puis App.tsx | session, navigation, écrans en français |
+| Entraînement | services/ml_training_service/app/main.py | cinq entraînements, accès local seulement |
+| Inférence | services/ml_inference_service/app/main.py | demande, risque, prix, promotions, restock, anomalies |
+| Stockage | libs/common/database.py | SQLite et transactions |
+| Adaptateur ML | libs/ml_bridge.py | indisponibilité explicite si données non liées ; aucun mélange implicite démo/réel |
+
+## Flux du cœur
+
+```mermaid
+flowchart LR
+    UI[Frontend React] --> API[Gateway FastAPI /api]
+    API --> AUTH[Session et rôle serveur]
+    AUTH --> STOCK[Produits et mouvements]
+    STOCK --> DB[(SQLite locale)]
+    DB --> HIST[Historiques stock et prix]
+    DB --> ALERT[Alertes dérivées des seuils]
+    ALERT --> UI
+    HIST --> UI
+    API --> BRIDGE[Adaptateur recommandations]
+    BRIDGE --> LIMIT[Données non liées : indisponible]
+```
+
+Le frontend utilise la même origine. Vite en développement proxifie /api vers le cœur en conservant Host. Les opérations sont validées et appliquées côté serveur, jamais seulement dans le navigateur.
+
+## Fichiers utiles
+
+| Besoin | Fichiers de départ |
+|---|---|
+| Session, mot de passe et droits | libs/common/security.py, services/auth_service/app/api/routes/auth.py, users.py, app/schemas/auth_schemas.py |
+| Catalogue et prix appliqués | services/stock_service/app/api/routes/products.py, app/schemas/product_schemas.py |
+| Mouvements, transactions, retry | services/stock_service/app/api/routes/stock.py, app/repositories/stock_repo.py, libs/common/database.py |
+| Alertes et dashboard | services/alerts_service/app/api/routes/alerts.py, app/services/alert_service.py |
+| API et types frontend | frontend/src/api.ts |
+| Catalogue produits | frontend/src/Products.tsx |
+| Fiche, formulaire et statut produit | frontend/src/features/products/ |
+| Formulaire et historique des mouvements | frontend/src/features/stock/ |
+| Prix, recommandation et historique | frontend/src/features/pricing/PricePanel.tsx |
+| Dashboard, alertes, collaborateurs, design | frontend/src/pages.tsx |
+| Composants et styles | frontend/src/ui.tsx, styles.css |
+| Tests cœur | tests/test_stock_integration.py |
+| Recette navigateur | tests/browser.mjs, tests/browser-design.mjs |
+| ML isolé | tests/test_ml.py |
+
+Les noms courts dans une cellule désignent le même répertoire que le chemin précédent. Certaines conventions originales models/repositories/schemas restent vides hors du périmètre complété. ml_data_service et les importeurs de ventes restent non implémentés.
+
+## API métier
+
+Toutes les routes ci-dessous portent le préfixe /api. La session est requise sauf health, setup et login.
+
+| Méthode | Route | Fonction / droits |
+|---|---|---|
+| GET | /health | santé locale |
+| GET / POST | /auth/setup | statut puis premier administrateur, une seule fois |
+| POST | /auth/login, /auth/logout | connexion / révocation session courante |
+| GET | /auth/me | utilisateur connecté |
+| GET / POST | /auth/users | liste / création de comptes, ADMIN |
+| GET / POST | /products | catalogue / création, écriture ADMIN ou MANAGER |
+| GET / PATCH | /products/{id} | fiche / métadonnées avec expected_version |
+| PATCH | /products/{id}/price | application explicite, version et idempotency_key |
+| GET | /products/{id}/prices | historique des prix |
+| GET / POST | /movements | historique / opération atomique ; filtre product_id |
+| GET | /alerts | règles stock < min ou stock > max |
+| GET | /dashboard | indicateurs et mouvements récents |
+| GET | /pricing/recommendations/{id} | limite ou recommandation si données explicitement liées |
+
+Les sessions durent 12 h. Les mots de passe sont salés et dérivés avec PBKDF2 ; les jetons de session sont hachés en base. Les mutations contrôlent Origin et Host, sans CORS permissif. Stock et quantity sont bornés à 2147483647, les IDs aux entiers SQLite signés 64 bits. Les versions empêchent une écriture périmée ; l'idempotence empêche de compter un retry deux fois.
+
+## Schéma local ajouté
+
+La base sous runtime/ contient users, sessions, login_attempts, products, movements, price_history et idempotency. Aucun schéma Supabase/SQL distant n'existait opérationnellement dans le dépôt. La création locale utilise CREATE TABLE IF NOT EXISTS ; une future évolution devra fournir une migration explicite. Les CSV sont conservés séparément, non importés.
+
+## Flux ML conservé
+
+```mermaid
+flowchart LR
+    CSV[CSV identifiés] --> TRAIN[Entraînement local explicite]
+    TRAIN --> ART[Joblib + SHA-256 + métadonnées]
+    CSV --> MATCH[Contrôle identité et empreinte dataset]
+    ART --> MATCH
+    MATCH --> INFER[Inférence JSON et explications]
+```
+
+Les deux configs utilisent les mêmes DATA_DIR, MODELS_DIR et REPORTS_DIR ; valeurs par défaut racine data/, artifacts/models/, artifacts/reports/. Aucun dossier de données n'est créé à l'import. L'entraînement crée explicitement ses dossiers de sortie. Les 40 joblib historiques sont conservés mais ne sont pas acceptés sans provenance locale concordante.
+
+| Service | Méthode | Route |
+|---|---|---|
+| Entraînement | GET | /health |
+| Entraînement | POST | /train/all, /train/demand-ml, /train/price-ml, /train/anomaly-ml, /train/promo-ml |
+| Inférence | GET | /health, /predict/demand-weekly/{product_id}, /predict/stock-risk/{product_id} |
+| Inférence | GET | /recommend/price/{product_id}, /recommend/restock/{product_id}, /recommend/promo/{product_id}, /detect/anomalies/{product_id} |
+
+/train/all produit les baselines et règles de stock ; il ne remplace pas les entraînements spécialisés. Les algorithmes restent dans les fichiers métier existants demand_ml_trainer, price_recommender, promo_recommender, anomaly_detectors et train_baselines côté training, demand_predictor, price_engine, promo_engine, restock_engine, anomaly_engine et stock_risk_predictor côté inference.
+
+La probabilité de risque de stock demeure une heuristique. Les promotions ne mesurent pas un effet causal. La qualité prédictive réelle n'est pas évaluée. Voir PROJECT_STATE.md pour les fonctionnalités encore non livrées.
