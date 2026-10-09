@@ -11,6 +11,7 @@ import {
   Boxes,
   Users,
   Palette,
+  FileUp,
 } from "lucide-react";
 import { api, post, errorMessage, type User } from "./api";
 import { Badge, Button, Field, Loading, Notice } from "./ui";
@@ -23,12 +24,14 @@ import {
   DesignPage,
 } from "./pages";
 import ProductsPage from "./Products";
+import ImportsPage from "./features/imports/ImportsPage";
 const navigation = [
   { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard },
   { id: "products", label: "Produits et stock", icon: Package },
   { id: "movements", label: "Mouvements", icon: ArrowLeftRight },
   { id: "alerts", label: "Alertes", icon: Bell },
   { id: "pricing", label: "Prix et recommandations", icon: Tags },
+  { id: "imports", label: "Imports CSV", icon: FileUp },
 ];
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -302,6 +305,9 @@ export default function App() {
             <PricingPage write={write} revision={revision} refresh={refresh} />
           )}
           {page === "users" && user.role === "ADMIN" && <UsersPage />}
+          {page === "imports" && (
+            <ImportsPage write={write} refresh={refresh} />
+          )}
           {page === "design" &&
             (import.meta.env.DEV ? (
               <DesignPage />

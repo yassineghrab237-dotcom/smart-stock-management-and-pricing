@@ -40,6 +40,7 @@ Le frontend utilise la même origine. Vite en développement proxifie /api vers 
 | Mouvements, transactions, retry | services/stock_service/app/api/routes/stock.py, app/repositories/stock_repo.py, libs/common/database.py |
 | Alertes et dashboard | services/alerts_service/app/api/routes/alerts.py, app/services/alert_service.py |
 | API et types frontend | frontend/src/api.ts |
+| Import CSV et ventes historiques | services/stock_service/app/api/routes/imports.py, frontend/src/features/imports/ImportsPage.tsx, docs/CSV_IMPORTS.md |
 | Catalogue produits | frontend/src/Products.tsx |
 | Fiche, formulaire et statut produit | frontend/src/features/products/ |
 | Formulaire et historique des mouvements | frontend/src/features/stock/ |
@@ -47,10 +48,11 @@ Le frontend utilise la même origine. Vite en développement proxifie /api vers 
 | Dashboard, alertes, collaborateurs, design | frontend/src/pages.tsx |
 | Composants et styles | frontend/src/ui.tsx, styles.css |
 | Tests cœur | tests/test_stock_integration.py |
+| Tests CSV | tests/test_imports.py, tests/browser-imports.mjs ; isolation bootstrap dans tests/conftest.py |
 | Recette navigateur | tests/browser.mjs, tests/browser-design.mjs |
 | ML isolé | tests/test_ml.py |
 
-Les noms courts dans une cellule désignent le même répertoire que le chemin précédent. Certaines conventions originales models/repositories/schemas restent vides hors du périmètre complété. ml_data_service et les importeurs de ventes restent non implémentés.
+Les noms courts dans une cellule désignent le même répertoire que le chemin précédent. Certaines conventions originales models/repositories/schemas restent vides hors du périmètre complété. ml_data_service reste un squelette ; l'import métier est raccordé au service stock et ne déclenche aucun entraînement.
 
 ## API métier
 
@@ -71,12 +73,17 @@ Toutes les routes ci-dessous portent le préfixe /api. La session est requise sa
 | GET | /alerts | règles stock < min ou stock > max |
 | GET | /dashboard | indicateurs et mouvements récents |
 | GET | /pricing/recommendations/{id} | limite ou recommandation si données explicitement liées |
+| POST | /imports/preview | aperçu CSV sans écriture, ADMIN/MANAGER |
+| POST | /imports/commit | revalidation et transaction entière, empreinte anti-doublon, ADMIN/MANAGER |
+| GET | /imports, /imports/sales | 100 derniers imports / ventes, tous les rôles connectés |
 
 Les sessions durent 12 h. Les mots de passe sont salés et dérivés avec PBKDF2 ; les jetons de session sont hachés en base. Les mutations contrôlent Origin et Host, sans CORS permissif. Stock et quantity sont bornés à 2147483647, les IDs aux entiers SQLite signés 64 bits. Les versions empêchent une écriture périmée ; l'idempotence empêche de compter un retry deux fois.
 
 ## Schéma local ajouté
 
-La base sous runtime/ contient users, sessions, login_attempts, products, movements, price_history et idempotency. Aucun schéma Supabase/SQL distant n'existait opérationnellement dans le dépôt. La création locale utilise CREATE TABLE IF NOT EXISTS ; une future évolution devra fournir une migration explicite. Les CSV sont conservés séparément, non importés.
+La base sous runtime/ contient users, sessions, login_attempts, products, movements, price_history, idempotency, csv_imports et sales_history. L'évolution CSV ajoute les deux dernières tables par CREATE TABLE IF NOT EXISTS au démarrage local, sans remplacement des données existantes. Aucun schéma Supabase/SQL distant n'existait opérationnellement dans le dépôt. Les CSV démo restent séparés ; seul un import utilisateur explicitement confirmé enregistre les lignes validées.
+
+Flux import : sélection CSV → aperçu serveur et rapprochement SKU → confirmation UI → revalidation sous BEGIN IMMEDIATE → création catalogue à stock zéro ou historique ventes séparé → journal de l'import. Empreinte kind/contenu/séparateur et références métier empêchent les doubles écritures. Une modification pertinente depuis l'aperçu impose une nouvelle analyse. Aucun export ML ni recommandation activé par l'import.
 
 ## Flux ML conservé
 

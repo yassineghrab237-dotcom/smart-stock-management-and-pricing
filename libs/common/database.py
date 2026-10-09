@@ -26,6 +26,8 @@ def initialize(path):
         CREATE TABLE IF NOT EXISTS movements(id INTEGER PRIMARY KEY, product_id INTEGER NOT NULL REFERENCES products(id), type TEXT NOT NULL, quantity INTEGER NOT NULL, reason TEXT NOT NULL, stock_before INTEGER NOT NULL, stock_after INTEGER NOT NULL, created_at TEXT NOT NULL, actor_id INTEGER NOT NULL REFERENCES users(id));
         CREATE TABLE IF NOT EXISTS price_history(id INTEGER PRIMARY KEY, product_id INTEGER NOT NULL REFERENCES products(id), old_price TEXT, new_price TEXT NOT NULL, reason TEXT NOT NULL, actor_id INTEGER NOT NULL REFERENCES users(id), created_at TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS idempotency(key TEXT PRIMARY KEY, actor_id INTEGER NOT NULL, payload TEXT NOT NULL, response TEXT NOT NULL);
+        CREATE TABLE IF NOT EXISTS csv_imports(id INTEGER PRIMARY KEY, kind TEXT NOT NULL, digest TEXT NOT NULL, filename TEXT NOT NULL, row_count INTEGER NOT NULL, actor_id INTEGER NOT NULL REFERENCES users(id), created_at TEXT NOT NULL, UNIQUE(kind,digest));
+        CREATE TABLE IF NOT EXISTS sales_history(id INTEGER PRIMARY KEY, reference TEXT NOT NULL UNIQUE, product_id INTEGER NOT NULL REFERENCES products(id), sold_on TEXT NOT NULL, quantity INTEGER NOT NULL CHECK(quantity>0), unit_price TEXT NOT NULL, import_id INTEGER NOT NULL REFERENCES csv_imports(id));
         """
         )
 

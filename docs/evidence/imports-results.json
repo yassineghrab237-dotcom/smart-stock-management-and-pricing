@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-09T18:51:04.800Z",
+  "checks": [
+    "Doublon dans le fichier : aperçu bloqué et aucune écriture",
+    "Catalogue enregistré ; quatre décimales ; stock zéro ; mobile/tablette/desktop sans overflow ; Escape restaure le focus",
+    "Vente persistée sans mouvement ni changement du prix/stock actuel",
+    "Réponse perdue après commit : reprise sans doublon",
+    "Rechargement persistant ; VIEWER consulte les ventes et ne peut pas importer"
+  ],
+  "jsErrors": [],
+  "mode": "SQLite QA isolée, aucun déploiement"
+}

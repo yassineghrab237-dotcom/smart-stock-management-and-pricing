@@ -21,3 +21,10 @@ Les tests serveur utilisent exclusivement des SQLite temporaires. La recette nav
 | Clavier | focus, Tab, Escape, dialogue | contrôle du focus visible |
 
 Scénarios exploratoires : réponse perdue après mouvement confirmé (même clé de retry), produit modifié simultanément (version périmée), quantité invalide, modèle absent ou non lié, accès direct sans session. Une revue technique et une recette automatisée ne remplacent pas un test avec de vrais utilisateurs.
+# Extension CSV — 9 octobre 2026
+
+21 cas supplémentaires dans tests/test_imports.py : aperçu sans écriture, catalogue avec BOM/point-virgule et précision prix, reprises et redémarrage, doublons, validation atomique, dates/quantités/prix invalides, SKU exact, conflit depuis l'aperçu, colonnes/limites, droits/Origin et double commit concurrent. Suite complète : 58 passed.
+
+tests/browser-imports.mjs (port 8011, base runtime/import-qa-* dédiée) : import catalogue et ventes réel, refus doublon, aucune écriture lors de l'aperçu, stock/prix/mouvements préservés, réponse perdue après commit et retry sans doublon, rechargement, VIEWER, Escape/focus et captures 390/768/1440 sans overflow. Zéro pageerror. Preuves : docs/evidence/imports-results.json et imports-{390,768,1440}.png. Les deux recettes navigateur précédentes ont aussi été rejouées avec succès.
+
+tests/conftest.py détourne la construction globale du gateway vers une base bootstrap temporaire avant la collecte pytest ; chaque cas continue à utiliser sa propre base. Aucun fichier de recette supprimé automatiquement.

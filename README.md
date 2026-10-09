@@ -10,6 +10,7 @@ Application locale de gestion du stock en français. Le frontend React/TypeScrip
 - Historique des mouvements, alertes sous le minimum/au-dessus du maximum et tableau de bord calculé côté serveur.
 - Prix actuel, application explicite d'un nouveau prix, plancher facultatif et historique. Quatre décimales conservées, sans devise/taxe présumée.
 - Frontend adapté aux mobiles et catalogue des composants réservé au développement.
+- Import CSV du catalogue et des ventes : modèles téléchargeables, aperçu, validation, confirmation et historique des imports. Voir [le format CSV](docs/CSV_IMPORTS.md).
 
 Les fonctions ML existantes sont conservées et testées séparément sur des données synthétiques. **Les recommandations sur le stock opérationnel restent indisponibles tant qu'un historique correspondant et des modèles validés ne sont pas explicitement liés.** Le projet complet n'est donc pas déclaré finalisé ni prêt à être exposé en production.
 
@@ -49,7 +50,7 @@ Le serveur sert le frontend compilé et les API sur la même origine. Un seul se
 .\scripts\run.ps1 -Database 'runtime/essai.sqlite3' -Port 8000
 ```
 
-La nouvelle base crée uniquement les tables `users`, `sessions`, `login_attempts`, `products`, `movements`, `price_history` et `idempotency` si absentes. Il ne s'agit pas d'une migration distante. Les nouveaux fichiers runtime, environnements et artefacts sont ignorés. Le `.venv`, `.env.txt` et les anciens modèles déjà suivis ne sont pas retirés de Git par le `.gitignore`.
+La base crée les tables `users`, `sessions`, `login_attempts`, `products`, `movements`, `price_history`, `idempotency`, `csv_imports` et `sales_history` si absentes. L'évolution CSV ajoute ces deux dernières tables au démarrage local, sans remplacer les tables existantes ni modifier leurs données. Il ne s'agit pas d'une migration distante. Les nouveaux fichiers runtime, environnements et artefacts sont ignorés. Le `.venv`, `.env.txt` et les anciens modèles déjà suivis ne sont pas retirés de Git par le `.gitignore`.
 
 ## Développement et design system
 
@@ -84,12 +85,13 @@ npm.cmd ci --cache .npm-cache
 npx.cmd playwright install chromium
 npm.cmd test
 npm.cmd run test:design
+npm.cmd run test:imports
 Set-Location ..
 ```
 
 Les scripts navigateur créent et arrêtent leurs propres serveurs, sans supprimer les données opérationnelles. `browser.mjs` utilise le port 8010 et une SQLite neuve sous `runtime/browser-qa-*`. Le script design requiert les ports 8000 et 5173 libres et utilise une autre base QA. Les captures et résultats sont dans `docs/evidence`. Les comptes et produits utilisés sont identifiés comme recette.
 
-Résultats vérifiés : **37 tests Python réussis**, compilation TypeScript/Vite réussie, audit npm du frontend sans vulnérabilité signalée, deux recettes navigateur réussies et zéro erreur JavaScript relevée. Voir [l'état détaillé](docs/PROJECT_STATE.md) et [les preuves](docs/evidence/browser-results.json). Un avertissement Starlette signale la future évolution de son adaptateur httpx de test ; aucun test n'échoue.
+Résultats vérifiés : **58 tests Python réussis**, compilation TypeScript/Vite réussie, trois recettes navigateur réussies et zéro erreur JavaScript relevée. L'audit npm précédent était sans vulnérabilité signalée ; aucune dépendance ajoutée pour l'import. Voir [l'état détaillé](docs/PROJECT_STATE.md) et [la recette CSV](docs/evidence/imports-results.json). Un avertissement Starlette signale la future évolution de son adaptateur httpx de test ; aucun test n'échoue.
 
 ## Services ML
 
@@ -116,4 +118,4 @@ Les routes et entraînements correspondants sont dans [la carte du projet](docs/
 - [Inventaire de recette](docs/QA_INVENTORY.md)
 - [Revue backend et corrections](docs/REVIEW_BACKEND.md)
 
-Non livrés : lien d'un historique réel aux recommandations ML, qualité prédictive validée, activation/récupération de mot de passe par email, désactivation/révocation globale de comptes, frontière multi-organisation, import des ventes ou datasets par une interface, déploiement et certification de production. Aucun achat, publication, migration de production ou push n'a été effectué. Les données saisies sont locales ; aucune synchronisation cloud n'est activée.
+Non livrés : lien d'un historique réel aux recommandations ML, qualité prédictive validée, activation/récupération de mot de passe par email, désactivation/révocation globale de comptes, frontière multi-organisation, export/pipeline des datasets ML, déploiement et certification de production. Aucun achat, publication, migration de production ou push n'a été effectué. Les données saisies sont locales ; aucune synchronisation cloud n'est activée.

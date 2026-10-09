@@ -33,7 +33,8 @@ Le dépôt initial était majoritairement un squelette. Les modules métier ont 
 | Design system / responsive | captures + design-results.json | TESTÉ | composants des vrais écrans, 390/768/1440 sans overflow, opérations réelles, Tab/Escape |
 | ML exécution | test_ml.py isolé | TESTÉ SUR SYNTHÉTIQUE | 5 entraînements + 6 inférences, erreurs/provenance, anciens modèles refusés |
 | ML qualité et stock opérationnel | aucune source liée dans la base métier | MANQUANT | interface honnête unavailable ; pas de recommandation fabriquée |
-| ml_data_service, sales_import | fichiers encore vides | MANQUANT | pas d'interface d'import ni pipeline de ventes opérationnel |
+| Import catalogue / ventes | tests/test_imports.py + browser-imports.mjs | TESTÉ | aperçu, rapprochement SKU exact, atomicité, doublons, conflits, droits ; ventes sans mouvement de stock |
+| Pipeline ml_data_service | service original encore squelette | MANQUANT | pas d'export vers corpus ML ni de liaison des modèles aux ventes importées |
 | Activation/reset email | non raccordé | MANQUANT | aucun envoi activé, aucune fausse confirmation |
 | Production / multi-organisation | non déployé | NON VÉRIFIÉ | aucun certificat production, cloud, backup/restore ou isolation multi-tenant |
 
@@ -47,12 +48,13 @@ Le dépôt initial était majoritairement un squelette. Les modules métier ont 
 
 Contrôles exécutés :
 
-- pytest tests -q : **37 passed**, un avertissement de dépréciation du client httpx par Starlette, sans échec.
+- pytest tests -q : **58 passed**, dont 21 cas CSV ; un avertissement de dépréciation du client httpx par Starlette, sans échec.
 - pip check : aucune incompatibilité signalée.
 - npm run build : TypeScript strict et Vite réussis.
 - npm audit frontend : **0 vulnérabilité signalée**, dépendances dev incluses. Vite mis à jour de 7.1.9 à 7.3.7 après alerte du registre ; aucun changement majeur.
 - browser.mjs : parcours réel, stock 105, persistance, mobile/tablette/desktop, prix, conflit, retry, alertes et réseau. Zéro pageerror JavaScript.
 - browser-design.mjs : proxy local, design interactif, collaborateur VIEWER, actions et refus serveur ; zéro pageerror JavaScript.
+- browser-imports.mjs : catalogue et ventes, aperçu, doublon bloquant, stock/prix conservés, retry après réponse perdue, historique persistant et VIEWER ; 390/768/1440 sans overflow, Escape/focus ; zéro pageerror JavaScript.
 - Revue séparée docs/REVIEW_BACKEND.md : les deux constats ont été corrigés et couverts par régressions Host externe/IDs démesurés.
 
 Résultats conservés dans docs/evidence : pytest-results.xml, browser-results.json, design-results.json, produits et mouvements 390/768/1440, design et lecture seule desktop. Captures contenant uniquement des comptes/produits de recette, jamais une identité réelle.
@@ -71,9 +73,11 @@ Résultats conservés dans docs/evidence : pytest-results.xml, browser-results.j
 
 Le lien entre stock opérationnel, historique de ventes et modèles ML reste à construire et vérifier. L'adaptateur exige une provenance et une identité explicitement liées ; aucun champ public de produit ne permet actuellement d'activer ce lien. Les modèles synthétiques ne sont pas qualifiés pour fixer des prix réels. Ce travail ne doit pas être annoncé terminé.
 
-Prochaine tâche exécutable : définir et implémenter un import d'historique avec validation des colonnes et rapprochement SKU explicite, aperçu avant persistance, données séparées des CSV démo et droits serveur ; vérifier ensuite entraînement/inférence sur un corpus métier autorisé et évaluer la qualité hors entraînement avant de proposer une application des recommandations.
+Import d'historique livré : format documenté dans CSV_IMPORTS.md, aperçu complet, correspondance SKU exacte, transaction et confirmation explicite. Les données restent en SQLite, séparées des CSV démo. Au démarrage, deux tables additives csv_imports et sales_history sont créées si absentes ; aucune donnée existante n'est remplacée. Les ventes importées ne décrémentent pas le stock actuel.
 
-Autres intentions non livrées : activation et récupération email, désactivation de comptes, révocation globale de sessions, workflow de décisions sur recommandations, collecte concurrentielle, import de ventes/datasets par UI, services de données, déploiement et recovery. Aucun emplacement, réservation, transfert, comptabilité, paiement, chatbot ou application native ajouté.
+Prochaine tâche exécutable : exporter les ventes et le catalogue vers un corpus ML identifié et versionné, gérer leur provenance déclarée et les données nécessaires manquantes, puis entraîner/évaluer hors entraînement sur un corpus métier autorisé avant de lier les modèles et proposer des recommandations. Aucun corpus réel n'a été importé pour cette recette.
+
+Autres intentions non livrées : activation et récupération email, désactivation de comptes, révocation globale de sessions, workflow de décisions sur recommandations, collecte concurrentielle, export/pipeline des datasets ML, services de données, déploiement et recovery. Aucun emplacement, réservation, transfert, comptabilité, paiement, chatbot ou application native ajouté.
 
 Le fichier d'origine data/config.json décrit aussi des intentions d'alertes liées au délai fournisseur, un ratio de surstock et une escalade après 24 h. Ces règles avancées ne sont pas raccordées dans le premier périmètre : les alertes livrées utilisent les seuils min/max renseignés sur le produit et l'interface en explique la règle. Aucun indicateur de délai ou d'escalade n'est simulé.
 
