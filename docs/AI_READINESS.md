@@ -4,6 +4,8 @@ Date : 9 octobre 2026. Source : dépôt cloné depuis GitHub, commit `5b60a03` (
 
 ## Actualisation après reprise
 
+Au 11 octobre 2026 : client natif Flutter organisé en écrans/services/modèles/widgets, verrous npm/Python/Dart, guide utilisateur séparé du guide technique, analyse de demande sur ventes SQLite et gestion des accès web/mobile. Les nouvelles routes et limites sont dans PROJECT_MAP.md ; les résultats vérifiés courants sont dans PROJECT_STATE.md. Les tableaux d’audit ci-dessous restent historiques et ne décrivent pas l’état actuel des tests ou dépendances.
+
 Le cœur Auth/Stock/Alerts/Gateway a été implémenté avec persistance SQLite ; un frontend React/TypeScript, des dépendances verrouillées, des tests et des captures sont maintenant livrés. Les deux services ML sont conservés et vérifiés sur des CSV synthétiques isolés. Les limites de données réelles, qualité ML et production restent explicites.
 
 Correction du premier inventaire : **40 modèles joblib historiques sont bien suivis dans Git**. La première conclusion de leur absence était incorrecte. Ils sont conservés, jamais chargés pendant la recette ; les nouveaux artefacts contrôlent leur intégrité et leur correspondance aux données. Les chiffres et constats suivants sont des observations du dépôt initial, pas son état courant.

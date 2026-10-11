@@ -55,36 +55,44 @@ def setup(body: Setup, request: Request, response: Response):
         return session(db, response, request, cursor.lastrowid)
 
 
-@router.post("/login")
-def login(body: Login, request: Request, response: Response):
+def authenticate(body: Login, request: Request, db):
     client_ip = request.client.host if request.client else "local"
     identities = (f"ip:{client_ip}", f"email:{body.email}")
     stamp = time.time()
-    with connect(db_path(request), write=True) as db:
-        counts = [
-            db.execute(
-                "SELECT COUNT(*) FROM login_attempts WHERE identity=? AND attempted_at>?",
-                (identity, stamp - 900),
-            ).fetchone()[0]
-            for identity in identities
-        ]
-        if max(counts) >= 5:
-            raise HTTPException(429, "Trop de tentatives. Réessayez dans 15 minutes.")
-        row = db.execute("SELECT * FROM users WHERE email=?", (body.email,)).fetchone()
-        # Fixed unusable hash gives unknown users the same PBKDF2 work factor.
-        dummy_hash = "pbkdf2_sha256$600000$" + "00" * 16 + "$" + "00" * 32
-        valid = verify_password(
-            body.password, row["password_hash"] if row else dummy_hash
+    counts = [
+        db.execute(
+            "SELECT COUNT(*) FROM login_attempts WHERE identity=? AND attempted_at>?",
+            (identity, stamp - 900),
+        ).fetchone()[0]
+        for identity in identities
+    ]
+    if max(counts) >= 5:
+        raise HTTPException(429, "Trop de tentatives. Réessayez dans 15 minutes.")
+    row = db.execute("SELECT * FROM users WHERE email=?", (body.email,)).fetchone()
+    # Fixed unusable hash gives unknown users the same PBKDF2 work factor.
+    dummy_hash = "pbkdf2_sha256$600000$" + "00" * 16 + "$" + "00" * 32
+    valid = verify_password(body.password, row["password_hash"] if row else dummy_hash)
+    if row:
+        access = db.execute(
+            "SELECT active FROM user_access WHERE user_id=?", (row["id"],)
+        ).fetchone()
+        if access and not access["active"]:
+            valid = False
+    if not row or not valid:
+        db.executemany(
+            "INSERT INTO login_attempts(identity,attempted_at) VALUES (?,?)",
+            [(identity, stamp) for identity in identities],
         )
-        if not row or not valid:
-            db.executemany(
-                "INSERT INTO login_attempts(identity,attempted_at) VALUES (?,?)",
-                [(identity, stamp) for identity in identities],
-            )
-            # Commit failure attempts before raising the HTTP error.
-            db.commit()
-            raise HTTPException(401, "Email ou mot de passe incorrect.")
-        return session(db, response, request, row["id"])
+        # Commit failure attempts before raising the HTTP error.
+        db.commit()
+        raise HTTPException(401, "Email ou mot de passe incorrect.")
+    return row["id"]
+
+
+@router.post("/login")
+def login(body: Login, request: Request, response: Response):
+    with connect(db_path(request), write=True) as db:
+        return session(db, response, request, authenticate(body, request, db))
 
 
 @router.get("/me")

@@ -34,6 +34,11 @@ Travailler principalement en français. Lire le README, docs/PROJECT_STATE.md et
 
 ## Validation et reprise
 
+- Client natif dans mobile : écrans/services/modèles/widgets séparés. Préserver stockage sécurisé, HTTPS, délais réseau et clé du brouillon après erreur ; jamais de retry d’écriture automatique ou de succès avant réponse serveur.
+- Après changement Dart : flutter analyze et flutter test --dart-define=ALLOW_LOCAL_HTTP=true. Pour les parcours critiques, recette integration_test avec tests/mobile_server.py sur SQLite neuve, puis reconstruire l’APK normal après flutter drive. Ne jamais installer une recette sur un téléphone personnel implicitement.
+- iOS : ne pas déclarer compilation/signature/recette réussies sans preuves Mac/Xcode. Android debug ne vaut pas signature boutique.
+- Analyse de demande : conserver séparation entraînement/évaluation chronologique, comparaison simple, semaines inconnues non remplacées par zéro et invalidation des résultats anciens. Les données importées et tests synthétiques ne certifient pas la qualité métier. Aucun joblib historique chargé ou prix appliqué automatiquement.
+
 - Exécuter scripts/test.ps1 ou pytest + build selon le changement ; ajouter des tests utiles pour les règles métier.
 - Recette navigateur : tests/browser.mjs et tests/browser-design.mjs ; vérifier ordinateur/mobile, actions, clavier, overflow et erreurs JavaScript.
 - Utiliser uniquement les bases temporaires et données de recette pour les tests.

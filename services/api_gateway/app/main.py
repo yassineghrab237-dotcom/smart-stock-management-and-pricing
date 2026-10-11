@@ -12,9 +12,11 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from libs.common.database import ROOT, default_path, initialize
 from services.auth_service.app.api.routes.auth import router as auth_router
 from services.auth_service.app.api.routes.users import router as users_router
+from services.auth_service.app.api.routes.mobile import router as mobile_router
 from services.stock_service.app.api.routes.products import router as products_router
 from services.stock_service.app.api.routes.stock import router as movements_router
 from services.stock_service.app.api.routes.imports import router as imports_router
+from services.stock_service.app.api.routes.analysis import router as analysis_router
 from services.alerts_service.app.api.routes.alerts import router as alerts_router
 from services.api_gateway.app.api.routes.recommendations import (
     router as recommendations_router,
@@ -120,9 +122,11 @@ def create_app(db_path=None):
     for router in (
         auth_router,
         users_router,
+        mobile_router,
         products_router,
         movements_router,
         imports_router,
+        analysis_router,
         alerts_router,
         recommendations_router,
     ):

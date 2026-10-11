@@ -1433,3 +1433,67 @@ td small {
     flex: 1 1 100%;
   }
 }
+.analysis-job {
+  margin-top: 24px;
+}
+.analysis-job progress {
+  width: 100%;
+  height: 12px;
+  accent-color: #087e76;
+}
+.forecast-grid,
+.help-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  margin-top: 20px;
+}
+.forecast-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #086f67;
+}
+.forecast-value small {
+  display: block;
+  font-size: 13px;
+  font-weight: 400;
+}
+.help-step {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #e4f4f1;
+  color: #086f67;
+  font-weight: bold;
+}
+.task-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.onboarding {
+  grid-column: 1/-1;
+}
+.onboarding .button {
+  margin: 6px 12px 6px 0;
+}
+.sidebar nav {
+  overflow-y: auto;
+  min-height: 0;
+}
+.dashboard-grid > section:first-child {
+  grid-column: 1/-1;
+}
+.user-row {
+  flex-wrap: wrap;
+}
+.account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}

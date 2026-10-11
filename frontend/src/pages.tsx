@@ -32,6 +32,7 @@ import {
 import { MovementForm } from "./features/stock/MovementForm";
 import { MovementHistory } from "./features/stock/MovementHistory";
 import { PricePanel } from "./features/pricing/PricePanel";
+import { AccountActions } from "./features/users/AccountActions";
 export function DashboardPage({
   revision,
   navigate,
@@ -57,6 +58,21 @@ export function DashboardPage({
       {r.data && !r.error && !r.loading && (
         <>
           <div className="stats-grid">
+            {r.data.product_count === 0 && (
+              <section className="panel padded onboarding">
+                <h2>Votre première action</h2>
+                <p>
+                  Créez un produit, puis enregistrez une entrée pour ajouter son
+                  stock.
+                </p>
+                <Button onClick={() => navigate("products")}>
+                  Commencer avec un produit
+                </Button>
+                <Button variant="secondary" onClick={() => navigate("help")}>
+                  Lire le guide en 5 minutes
+                </Button>
+              </section>
+            )}
             {[
               {
                 label: "Produits au catalogue",
@@ -102,6 +118,30 @@ export function DashboardPage({
             ))}
           </div>
           <div className="dashboard-grid">
+            <section className="panel padded">
+              <h2>Actions utiles</h2>
+              <div className="task-actions">
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate("movements")}
+                >
+                  Enregistrer ou consulter un mouvement
+                </Button>
+                <Button variant="secondary" onClick={() => navigate("imports")}>
+                  Importer un catalogue ou des ventes
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate("analysis")}
+                >
+                  Suivre une analyse de ventes
+                </Button>
+              </div>
+              <p>
+                Stock et prix manuels actifs. Les prévisions nécessitent un
+                historique ; aucun prix n’est appliqué automatiquement.
+              </p>
+            </section>
             <section className="panel padded">
               <div className="section-heading">
                 <h2>Derniers mouvements</h2>
@@ -367,7 +407,7 @@ export function PricingPage({
     </>
   );
 }
-export function UsersPage() {
+export function UsersPage({ actorId }: { actorId: number }) {
   const r = useResource<{ items: User[] }>("/auth/users");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -419,6 +459,7 @@ export function UsersPage() {
                       ? "Gestionnaire"
                       : "Lecture seule"}
                 </Badge>
+                <AccountActions user={u} actorId={actorId} refresh={r.reload} />
               </div>
             ))}
         </section>

@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-11T00:59:24.366Z",
+  "stock": 27,
+  "price": "12.3456",
+  "movements": 2,
+  "checks": [
+    "Produit créé depuis les vrais écrans Flutter retrouvé dans le web",
+    "Mouvement et prix natifs persistants",
+    "Reprise via stockage natif sécurisé sans double mouvement"
+  ],
+  "jsErrors": []
+}

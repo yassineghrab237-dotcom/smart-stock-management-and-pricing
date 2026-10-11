@@ -15,7 +15,7 @@ await mkdir(path.join(root, 'docs/evidence'), { recursive: true });
 const backend = spawn(path.join(root, '.venv-local/Scripts/python.exe'), ['-m', 'uvicorn', 'services.api_gateway.app.main:app', '--host', '127.0.0.1', '--port', '8000'], {
   cwd: root, windowsHide: true, env: { ...process.env, SMART_STOCK_DB: path.join(qa, 'isolated.sqlite3'), SMART_STOCK_DEV: '1' },
 });
-const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1'], { cwd: path.join(root, 'frontend'), windowsHide: true });
+const vite = spawn(process.execPath, ['node_modules/vite/bin/vite.js', '--host', '127.0.0.1', '--port', '5281'], { cwd: path.join(root, 'frontend'), windowsHide: true });
 let log = '';
 for (const child of [backend, vite]) {
   child.stdout.on('data', (data) => { log += data; });
@@ -25,7 +25,7 @@ let browser;
 try {
   for (let i = 0; i < 100; i++) {
     if (backend.exitCode !== null || vite.exitCode !== null) throw new Error(`Port occupé ou lancement refusé: ${log}`);
-    try { if ((await fetch('http://127.0.0.1:5173/api/health')).ok) break; } catch { /* readiness */ }
+    try { if ((await fetch('http://127.0.0.1:5281/api/health')).ok) break; } catch { /* readiness */ }
     if (i === 99) throw new Error(`Serveurs indisponibles: ${log}`);
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
@@ -35,7 +35,7 @@ try {
   const errors = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const password = `Design9!${randomBytes(16).toString('hex')}`;
-  await page.goto('http://127.0.0.1:5173/design');
+  await page.goto('http://127.0.0.1:5281/design');
   await page.getByLabel('Nom', { exact: true }).fill('Recette design');
   await page.getByLabel('Adresse e-mail', { exact: true }).fill('design@example.test');
   await page.getByLabel('Mot de passe', { exact: true }).fill(password);
@@ -78,7 +78,7 @@ try {
   await page.getByRole('navigation').getByRole('button', { name: 'Produits et stock', exact: true }).click();
   await page.getByRole('heading', { name: 'Votre catalogue commence ici' }).waitFor();
   assert.equal(await page.getByRole('button', { name: 'Ajouter un produit' }).count(), 0);
-  assert.equal((await context.request.post('http://127.0.0.1:5173/api/products', { data: { name: 'Interdit', sku: 'NO' } })).status(), 403);
+  assert.equal((await context.request.post('http://127.0.0.1:5281/api/products', { data: { name: 'Interdit', sku: 'NO' } })).status(), 403);
   await page.screenshot({ path: path.join(root, 'docs/evidence/viewer-1440.png'), fullPage: true });
   assert.deepEqual(errors, []);
   const result = { success: true, checks: ['Vite proxy CSRF same-origin', 'Frontend compilé vérifié à127.0.0.1:8000, menu design absent', 'Design : notification, chargement, dialogue partagé, Escape et focus', 'Création collaborateur depuis UI', 'Connexion VIEWER après ADMIN sans écran vide', 'Actions masquées et refus serveur403 VIEWER'], jsErrors: errors };

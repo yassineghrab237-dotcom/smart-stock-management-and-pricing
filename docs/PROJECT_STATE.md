@@ -1,94 +1,57 @@
-# État de reprise — 9 octobre 2026
+# État de livraison — 11 octobre 2026
 
-## Résultat et périmètre retenu
+## Résultat local
 
-**UTILISABLE LOCALEMENT et TESTÉ** : application React/TypeScript en français reliée à FastAPI et SQLite. Connexion, droits, catalogue, mouvements, historique, alertes et prix appliqués persistent réellement. Aucun déploiement ni push. Les CSV et comptes fictifs du dépôt ne sont pas importés dans la base opérationnelle.
+Le périmètre réalisable sur ce PC comprend le cœur FastAPI/SQLite, le web React/TypeScript français, les imports CSV, la gestion des accès, une analyse de demande sur ventes importées et un client natif Flutter Android/iOS. Aucun achat, push, publication, migration distante ou déploiement. Les CSV de démonstration, le `.venv`, `.env.txt` et les 40 joblib historiques restent conservés.
 
-Le dépôt initial était majoritairement un squelette. Les modules métier ont été implémentés localement ; il ne s'agissait pas de finaliser une application existante déjà raccordée. Le projet complet reste **NON TERMINÉ** pour les recommandations ML sur historique métier réel et les autres intentions listées ci-dessous.
+| Fonction | État et preuve |
+|---|---|
+| Connexion, rôles et sessions | TESTÉ : cookies web et Bearer mobile indépendants, jetons hachés, expiration, limite de connexion partagée |
+| Catalogue, mouvements et prix | TESTÉ : SQLite persistante, versions, transactions, idempotence, historique et permissions ; aucun stock négatif |
+| Désactivation et révocation globale | TESTÉ : ADMIN uniquement, confirmation, motif, sessions fermées, réactivation sans restaurer les anciens jetons ; aucun compte supprimé |
+| CSV catalogue et ventes | TESTÉ : aperçu, rapprochement SKU explicite, atomicité, doublons, historique ; les ventes importées ne modifient pas le stock |
+| Demande depuis les ventes SQLite | TESTÉ sur historique QA explicitement synthétique : job suivi jusqu’au résultat, validation temporelle et comparaison naïve, résultat périmé masqué |
+| Anciennes recommandations de prix ML | NON RELIÉES au stock réel ; anciens services testés séparément, aucun modèle historique chargé |
+| Web français et aide | COMPILÉ et TESTÉ dans Chromium, mobile/tablette/desktop, navigation clavier, erreurs et réseau ; captures docs/evidence |
+| App Flutter native | IMPLÉMENTÉE : connexion, catalogue, stock/prix confirmés, alertes, historique, analyses et reprise sécurisée ; analyse statique et huit tests réussis |
+| Android | COMPILÉ et TESTÉ : parcours natif complet sur émulateur, stockage sécurisé réel, reprise sans doublon et cohérence web ; QA_INVENTORY.md |
+| iOS | SOURCES et configuration Keychain livrées ; compilation/signature/recette NON EXÉCUTÉES sur ce Windows |
+| Production et boutiques | NON DÉPLOYÉ ; service local loopback, pas de clé de production, SMTP, push ou cloud |
 
-## Hypothèses prudentes
+## Architecture et données
 
-- Utilisateur provisoire : gestionnaire non technique ; interface française.
-- Quantités entières, sorties supérieures au stock refusées. Ajustement = quantité physique cible, motif obligatoire et trace avant/après.
-- Produit neuf à stock zéro ; aucune suppression de produit ni d'historique exposée.
-- Montants à quatre décimales, sans devise, taxes, méthode de valorisation ou conversion d'unité inventée.
-- Comptes locaux ADMIN, MANAGER, VIEWER ; aucune organisation ou frontière multi-tenant existante n'a été trouvée.
-- Premier admin créé via formulaire local ; mots de passe 12 à 256 caractères, majuscule et chiffre. Aucun email d'activation ou reset envoyé.
-- Frontend ajouté en React/TypeScript/Vite, backend FastAPI conservé. SQLite est un nouveau stockage local adapté au périmètre mono-instance ; aucune migration distante.
+Le web et le mobile utilisent les mêmes routes métier et la même base du service. La session mobile dure douze heures et ne remplace pas les cookies. Le mot de passe n’est jamais sauvegardé par Flutter. Les mouvements/prix sauvegardent une requête et sa clé dans le stockage sécurisé avant envoi, et exigent une reprise manuelle après erreur. Une ancienne version provoque un refus serveur ; consulter l’historique et actualiser avant de préparer une nouvelle opération.
 
-## Matrice de livraison
+Les ajouts de schéma sont exclusivement `CREATE TABLE IF NOT EXISTS` : `mobile_sessions`, `analysis_jobs`, `user_access`. Aucune table précédente vidée ou remplacée. Les comptes précédents restent actifs par défaut. Désactiver révoque les sessions et conserve les comptes et historiques.
 
-| Fonction/parcours | Preuve | État | Correction et critère vérifié |
-|---|---|---|---|
-| Connexion / droits | routes Auth + tests HTTP + recette design | TESTÉ | sessions hachées, cookies, expiry, limites login ; refus 401/403 |
-| Premier admin | tests setup concurrent + navigateur | TESTÉ | un seul premier compte, rôle serveur |
-| Catalogue | API produits, SQLite, navigateur | TESTÉ | création, rechargement et redémarrage conservent produit ; SKU unique |
-| Recherche / filtres / détail | recette browser.mjs | TESTÉ | nom/SKU/catégorie, filtre et retour liste gardant contexte |
-| Mouvements / historique | tests SQL via HTTP et navigateur | TESTÉ | 100 - 15 + 20 = 105 ; avant/après, auteur, motif |
-| Double soumission / concurrence | tests + perte de réponse après commit | TESTÉ | idempotence ; conflit version 409 ; aucune écriture perdue ou doublonnée |
-| Invalides / ajustements | suite serveur et UI | TESTÉ | sortie excessive, bool/float, motif vide, overflow refusés sans écriture partielle |
-| Alertes | seuils produits et tests | TESTÉ | stock inférieur au min ou supérieur au max ; résolution dérivée d'une opération |
-| Prix appliqué / historique | Decimal + tests + UI | TESTÉ | quatre décimales, plancher renseigné, droits, version, action explicite |
-| Formulaires prix | régression navigateur | TESTÉ | succès durable ; conflit garde la saisie puis reconfirmation |
-| Design system / responsive | captures + design-results.json | TESTÉ | composants des vrais écrans, 390/768/1440 sans overflow, opérations réelles, Tab/Escape |
-| ML exécution | test_ml.py isolé | TESTÉ SUR SYNTHÉTIQUE | 5 entraînements + 6 inférences, erreurs/provenance, anciens modèles refusés |
-| ML qualité et stock opérationnel | aucune source liée dans la base métier | MANQUANT | interface honnête unavailable ; pas de recommandation fabriquée |
-| Import catalogue / ventes | tests/test_imports.py + browser-imports.mjs | TESTÉ | aperçu, rapprochement SKU exact, atomicité, doublons, conflits, droits ; ventes sans mouvement de stock |
-| Pipeline ml_data_service | service original encore squelette | MANQUANT | pas d'export vers corpus ML ni de liaison des modèles aux ventes importées |
-| Activation/reset email | non raccordé | MANQUANT | aucun envoi activé, aucune fausse confirmation |
-| Production / multi-organisation | non déployé | NON VÉRIFIÉ | aucun certificat production, cloud, backup/restore ou isolation multi-tenant |
+L’analyse utilise des semaines terminées, consécutives jusqu’à la semaine dernière, au moins seize par produit. Elle ne fabrique pas de ventes nulles quand une semaine est inconnue. Quatre semaines sont réservées à l’évaluation chronologique ; la prévision est cachée si le modèle ne bat pas la dernière semaine répétée. Résultats JSON et progression sont enregistrés ; date et empreinte signalent les résultats anciens. Aucun joblib chargé, stock/prix modifié ou appel LLM : zéro token API consommé par cette fonction.
 
-## Jalons et preuves
+`BackgroundTasks` n’est pas une file durable : après dix minutes sans progression, la prochaine consultation signale l’interruption et permet un nouveau lancement. Une seule analyse active par base et déduplication par empreinte évitent de répéter un calcul sur une réponse perdue. La provenance est déclarée comme historique importé par l’utilisateur, jamais certifiée automatiquement.
 
-- **J1 réalisé** : dépôt et branche vérifiés, travail local conservé, .venv-local neuf, requirements-lock.txt et verrous npm ; .env.example non secret, .gitignore adapté. Le .venv versionné est conservé.
-- **J2 réalisé** : parcours HTTP persistant, transactions SQLite, versions et clés d'idempotence. Données d'essai exclusivement temporaires.
-- **J3 réalisé** : frontend connecté et design system partagé, layout table/cartes, erreurs et vides, focus et navigation mobile.
-- **J4 partiel** : alertes et tarification manuelle testées ; entraînement/inférence ML fonctionnent sur des CSV synthétiques isolés. L'exploitation sur historique réel reste non livrée.
-- **J5 réalisé pour le périmètre local** : revue backend distincte, corrections Host/IDs, recette navigateur, captures, documentation et revue du diff. Ce n'est pas une recette avec de vrais utilisateurs.
+## Vérifications exécutées
 
-Contrôles exécutés :
+- Suite Python complète : **70 passed**, un avertissement Starlette/httpx sans échec ; XML conservé.
+- `pip check` : aucune incompatibilité.
+- TypeScript strict et Vite : compilation réussie.
+- Recettes Chromium cœur, design, CSV et livraison : résultats JSON et captures dans `docs/evidence`, zéro erreur JavaScript relevée.
+- Livraison web : premier accueil, guide 390/768/1440, analyse complète sans écriture de stock, invalidation des prévisions, comptes activés/désactivés et révocation confirmée.
+- Flutter : `flutter analyze` sans erreur, **8 tests réussis** dont transport HTTPS, formulaires 320/390/768, même clé après réponse perdue, changement d’onglet en cours de chargement et fiche bloquée pendant son rafraîchissement.
+- Aucun test ne vise la base opérationnelle ou une identité réelle. Les captures utilisent exclusivement des comptes et produits QA.
 
-- pytest tests -q : **58 passed**, dont 21 cas CSV ; un avertissement de dépréciation du client httpx par Starlette, sans échec.
-- pip check : aucune incompatibilité signalée.
-- npm run build : TypeScript strict et Vite réussis.
-- npm audit frontend : **0 vulnérabilité signalée**, dépendances dev incluses. Vite mis à jour de 7.1.9 à 7.3.7 après alerte du registre ; aucun changement majeur.
-- browser.mjs : parcours réel, stock 105, persistance, mobile/tablette/desktop, prix, conflit, retry, alertes et réseau. Zéro pageerror JavaScript.
-- browser-design.mjs : proxy local, design interactif, collaborateur VIEWER, actions et refus serveur ; zéro pageerror JavaScript.
-- browser-imports.mjs : catalogue et ventes, aperçu, doublon bloquant, stock/prix conservés, retry après réponse perdue, historique persistant et VIEWER ; 390/768/1440 sans overflow, Escape/focus ; zéro pageerror JavaScript.
-- Revue séparée docs/REVIEW_BACKEND.md : les deux constats ont été corrigés et couverts par régressions Host externe/IDs démesurés.
+## Corrections issues de la recette
 
-Résultats conservés dans docs/evidence : pytest-results.xml, browser-results.json, design-results.json, produits et mouvements 390/768/1440, design et lecture seule desktop. Captures contenant uniquement des comptes/produits de recette, jamais une identité réelle.
+La fiche native retenait brièvement l’ancien résultat pendant son rechargement, et le changement d’onglet pouvait réinterpréter la structure du précédent résultat. Les écrans attendent maintenant la fin du nouveau chargement ; les actions de prix ne peuvent plus partir avec cette ancienne version. Deux tests couvrent ces régressions. Les protections serveur avaient refusé l’écriture périmée.
 
-## Défauts corrigés pendant la recette
+Le port 5173 étant utilisé par un autre projet sur ce PC, la recette design a été déplacée sur 5281. Aucun processus de l’autre projet n’a été arrêté.
 
-- Labels de formulaires : descriptions séparées du nom accessible via aria-describedby.
-- Prix : formulaire conservé pendant refresh/refetch pour ne pas perdre succès ou saisie lors d'un conflit.
-- Mobile : navigation fermée non tabulable, trap focus quand ouverte, Escape et retour au déclencheur.
-- Changement ADMIN vers VIEWER : remise à zéro de la navigation pour éviter un écran inaccessible vide.
-- Composants produits/stock/prix séparés dans frontend/src/features ; le catalogue n'embarque plus tous les formulaires dans un fichier unique.
-- Indicateur quantités : somme brute explicitée, sans conversion d'unités supposée.
-- Sécurité : Host limité, IDs SQLite bornés, politique du mot de passe réellement contrôlée, Origin vérifié aussi pour les entraînements ML.
+## Usage et reprise
 
-## Limites et prochaine tâche
+Depuis la racine : `scripts/setup.ps1` puis `scripts/run.ps1`. Application à `http://127.0.0.1:8000`, SQLite `runtime/stock.sqlite3`, arrêt Ctrl+C. [Guide quotidien](COMMENCER_EN_5_MINUTES.md), [installation native](MOBILE_INSTALLATION.md), [carte du code](PROJECT_MAP.md).
 
-Le lien entre stock opérationnel, historique de ventes et modèles ML reste à construire et vérifier. L'adaptateur exige une provenance et une identité explicitement liées ; aucun champ public de produit ne permet actuellement d'activer ce lien. Les modèles synthétiques ne sont pas qualifiés pour fixer des prix réels. Ce travail ne doit pas être annoncé terminé.
+La variante Android locale exige un tunnel USB `adb reverse` vers le PC ; aucun accès Wi-Fi/Internet n’est activé. Après une recette `flutter drive`, reconstruire l’APK normal avant installation. Les serveurs QA et l’émulateur dédié sont arrêtés après validation ; aucun fonctionnement permanent en arrière-plan promis.
 
-Import d'historique livré : format documenté dans CSV_IMPORTS.md, aperçu complet, correspondance SKU exacte, transaction et confirmation explicite. Les données restent en SQLite, séparées des CSV démo. Au démarrage, deux tables additives csv_imports et sales_history sont créées si absentes ; aucune donnée existante n'est remplacée. Les ventes importées ne décrémentent pas le stock actuel.
+## Limites restantes
 
-Prochaine tâche exécutable : exporter les ventes et le catalogue vers un corpus ML identifié et versionné, gérer leur provenance déclarée et les données nécessaires manquantes, puis entraîner/évaluer hors entraînement sur un corpus métier autorisé avant de lier les modèles et proposer des recommandations. Aucun corpus réel n'a été importé pour cette recette.
+Il faut un Mac/Xcode pour compiler et tester iOS, une identité et signature de production pour les boutiques, et un déploiement HTTPS explicitement autorisé pour l’accès distant. La qualité prédictive sur un corpus métier réel reste à mesurer. Les recommandations de prix anciennes, délais fournisseur/escalades avancées, frontière multi-organisation, email de récupération, push, sauvegarde/restauration validée et file de travaux durable ne sont pas livrés. Aucun compte boutique, clé ou abonnement acheté ou remplacé.
 
-Autres intentions non livrées : activation et récupération email, désactivation de comptes, révocation globale de sessions, workflow de décisions sur recommandations, collecte concurrentielle, export/pipeline des datasets ML, services de données, déploiement et recovery. Aucun emplacement, réservation, transfert, comptabilité, paiement, chatbot ou application native ajouté.
-
-Le fichier d'origine data/config.json décrit aussi des intentions d'alertes liées au délai fournisseur, un ratio de surstock et une escalade après 24 h. Ces règles avancées ne sont pas raccordées dans le premier périmètre : les alertes livrées utilisent les seuils min/max renseignés sur le produit et l'interface en explique la règle. Aucun indicateur de délai ou d'escalade n'est simulé.
-
-## Relancer
-
-Depuis la racine : scripts/setup.ps1 puis scripts/run.ps1. Le cœur démarre à 127.0.0.1:8000, avec la base runtime/stock.sqlite3. Les scripts de recette arrêtent leurs propres serveurs ; aucune exécution en arrière-plan n'est promise. Pour poursuivre les tests : scripts/test.ps1, puis les deux scripts navigateur décrits dans le README.
-
-## Commits locaux
-
-- 300099e : cœur persistant, sécurisation, services ML et tests Python.
-- 1c79d63 : frontend français, composants séparés et recettes navigateur.
-- Documentation et preuves : commit suivant, consultable avec git log -3 --oneline.
-
-Aucune identité Git n'était configurée. Les commits utilisent uniquement l'auteur technique Codex local agent <codex@localhost>, via options limitées aux commandes ; aucune configuration Git globale ni identité humaine n'a été remplacée. Aucun push.
+Les commits sont locaux, auteur technique `Codex local agent <codex@localhost>` limité à la commande ; aucune configuration Git globale modifiée. Voir `git log --oneline` pour les jalons. Le dépôt distant reste inchangé.

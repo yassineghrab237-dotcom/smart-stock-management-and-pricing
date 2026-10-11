@@ -20,6 +20,8 @@ def initialize(path):
             """
         CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL, role TEXT NOT NULL CHECK(role IN ('ADMIN','MANAGER','VIEWER')), created_at TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), expires_at REAL NOT NULL);
+        CREATE TABLE IF NOT EXISTS mobile_sessions(token_hash TEXT PRIMARY KEY, user_id INTEGER NOT NULL REFERENCES users(id), expires_at REAL NOT NULL);
+        CREATE TABLE IF NOT EXISTS user_access(user_id INTEGER PRIMARY KEY REFERENCES users(id), active INTEGER NOT NULL CHECK(active IN (0,1)), reason TEXT NOT NULL, actor_id INTEGER NOT NULL REFERENCES users(id), updated_at TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS login_attempts(id INTEGER PRIMARY KEY, identity TEXT NOT NULL, attempted_at REAL NOT NULL);
         CREATE INDEX IF NOT EXISTS login_attempt_identity ON login_attempts(identity, attempted_at);
         CREATE TABLE IF NOT EXISTS products(id INTEGER PRIMARY KEY, sku TEXT NOT NULL UNIQUE, name TEXT NOT NULL, category TEXT, unit TEXT, cost_price TEXT, current_price TEXT, min_price TEXT, threshold_min INTEGER NOT NULL DEFAULT 0, threshold_max INTEGER, current_stock INTEGER NOT NULL DEFAULT 0 CHECK(current_stock >= 0), version INTEGER NOT NULL DEFAULT 1, created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
@@ -28,6 +30,7 @@ def initialize(path):
         CREATE TABLE IF NOT EXISTS idempotency(key TEXT PRIMARY KEY, actor_id INTEGER NOT NULL, payload TEXT NOT NULL, response TEXT NOT NULL);
         CREATE TABLE IF NOT EXISTS csv_imports(id INTEGER PRIMARY KEY, kind TEXT NOT NULL, digest TEXT NOT NULL, filename TEXT NOT NULL, row_count INTEGER NOT NULL, actor_id INTEGER NOT NULL REFERENCES users(id), created_at TEXT NOT NULL, UNIQUE(kind,digest));
         CREATE TABLE IF NOT EXISTS sales_history(id INTEGER PRIMARY KEY, reference TEXT NOT NULL UNIQUE, product_id INTEGER NOT NULL REFERENCES products(id), sold_on TEXT NOT NULL, quantity INTEGER NOT NULL CHECK(quantity>0), unit_price TEXT NOT NULL, import_id INTEGER NOT NULL REFERENCES csv_imports(id));
+        CREATE TABLE IF NOT EXISTS analysis_jobs(id INTEGER PRIMARY KEY, fingerprint TEXT NOT NULL, status TEXT NOT NULL, progress INTEGER NOT NULL, message TEXT NOT NULL, result TEXT, actor_id INTEGER NOT NULL REFERENCES users(id), created_at TEXT NOT NULL, updated_at TEXT NOT NULL);
         """
         )
 

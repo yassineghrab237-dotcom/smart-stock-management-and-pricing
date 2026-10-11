@@ -30,9 +30,16 @@ def token_hash(token):
 
 def current_user(request: Request):
     token = request.cookies.get(COOKIE, "")
+    table = "sessions"
+    authorization = request.headers.get("authorization")
+    if authorization is not None:
+        scheme, _, token = authorization.partition(" ")
+        if scheme.lower() != "bearer" or not token or len(token) > 256:
+            raise HTTPException(401, "Connexion requise.")
+        table = "mobile_sessions"
     with connect(db_path(request)) as db:
         row = db.execute(
-            "SELECT u.id,u.name,u.email,u.role FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>?",
+            f"SELECT u.id,u.name,u.email,u.role FROM {table} s JOIN users u ON u.id=s.user_id LEFT JOIN user_access a ON a.user_id=u.id WHERE s.token_hash=? AND s.expires_at>? AND COALESCE(a.active,1)=1",
             (token_hash(token), time.time()),
         ).fetchone()
     if not row:

@@ -1,6 +1,50 @@
 # Carte du projet
 
-État local de reprise du 9 octobre 2026, à partir du commit initial 5b60a03. Le backend ML est conservé ; les fichiers vides du cœur ont été complétés sans remplacer le dépôt distant.
+État local du 11 octobre 2026, à partir du commit initial 5b60a03. Le backend ML est conservé ; le cœur web et un client natif ont été ajoutés sans remplacer le dépôt distant.
+
+## Extension native et analyse opérationnelle
+
+```mermaid
+flowchart LR
+    WEB[React : cookie] --> API[FastAPI /api]
+    MOBILE[Flutter Android et iOS : Bearer] --> API
+    API --> ACCESS[Utilisateur actif et rôle]
+    ACCESS --> DB[(SQLite locale)]
+    DB --> SALES[Ventes importées avec SKU exact]
+    SALES --> JOB[Job Python : modèle en mémoire]
+    JOB --> CHECK[Contrôle chronologique et méthode simple]
+    CHECK --> RESULT[Résultat JSON et limites]
+    RESULT --> DB
+    DB --> WEB
+    DB --> MOBILE
+```
+
+| Besoin nouveau | Point de départ |
+|---|---|
+| Client Android/iOS et thème | mobile/lib/main.dart, mobile/android, mobile/ios |
+| Session native, délais, HTTPS, brouillon de reprise | mobile/lib/services/api.dart |
+| Écrans natifs | mobile/lib/screens : login, workspace, product_create, product_detail, operation |
+| Jeton natif indépendant | services/auth_service/app/api/routes/mobile.py, libs/common/security.py |
+| Désactivation et révocation globale | services/auth_service/app/api/routes/users.py, frontend/src/features/users/AccountActions.tsx |
+| Tâches et déduplication | services/stock_service/app/api/routes/analysis.py |
+| Prévision et validation chronologique | services/stock_service/app/services/analysis.py |
+| Analyse web et aide utilisateur | frontend/src/features/analysis, frontend/src/features/help |
+| Recette native sur backend réel | mobile/integration_test/app_test.dart, tests/mobile_server.py, tests/mobile-web-check.mjs |
+| Régressions et recette livraison | tests/test_mobile_analysis.py, mobile/test, tests/browser-delivery.mjs |
+
+API supplémentaires, toutes préfixées `/api` :
+
+| Méthode | Route | Accès |
+|---|---|---|
+| POST | /mobile/auth/login | Identifiants, HTTPS ou client loopback pour recette USB ; limite commune avec login web |
+| POST | /mobile/auth/logout | Jeton Bearer mobile ; révoque uniquement ce jeton |
+| POST | /auth/users/{id}/access | ADMIN ; motif et active ; désactivation interdit sa propre session, conserve un ADMIN actif |
+| POST | /auth/users/{id}/revoke-sessions | ADMIN ; ferme web/mobile sans supprimer le compte |
+| POST / GET | /analysis/jobs | Écriture ADMIN/MANAGER ; lecture tout compte actif |
+
+Ajouts SQLite par `CREATE TABLE IF NOT EXISTS` : `mobile_sessions`, `analysis_jobs`, `user_access`. Les sessions expirent après 12 h ; les comptes précédents sont actifs par défaut. Une désactivation révoque les sessions et conserve les historiques.
+
+Le job prend un instantané explicite des produits et ventes importées, compare quatre semaines hors entraînement à la dernière semaine répétée et masque les prévisions si les données manquent ou si le modèle ne gagne pas. Les semaines inconnues ne deviennent pas des zéros. Empreinte + date permettent de signaler un résultat périmé. Aucun ancien joblib lu, aucune écriture de stock/prix, aucun service LLM ni tokens. Une tâche sans progression depuis dix minutes est signalée interrompue lors de la prochaine consultation ; `BackgroundTasks` ne constitue pas une file durable.
 
 ## Points d'entrée
 

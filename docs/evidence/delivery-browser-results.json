@@ -1,0 +1,11 @@
+{
+  "date": "2026-10-11T00:59:47.971Z",
+  "checks": [
+    "Accueil vide avec première action et guide réel 390/768/1440 sans overflow",
+    "Import réel d’un historique explicitement QA/synthétique, calcul suivi jusqu’au résultat, contrôle temporel/baseline, aucune modification stock",
+    "Analyse périmée signalée et estimation masquée après modification du corpus",
+    "Compte créé, désactivé et réactivé par confirmation, révocation des sessions, pages collaborateurs 390/1440 sans débordement"
+  ],
+  "jsErrors": [],
+  "mode": "SQLite QA isolée, corpus synthétique identifié"
+}

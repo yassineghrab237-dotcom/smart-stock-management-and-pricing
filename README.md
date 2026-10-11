@@ -12,7 +12,9 @@ Application locale de gestion du stock en français. Le frontend React/TypeScrip
 - Frontend adapté aux mobiles et catalogue des composants réservé au développement.
 - Import CSV du catalogue et des ventes : modèles téléchargeables, aperçu, validation, confirmation et historique des imports. Voir [le format CSV](docs/CSV_IMPORTS.md).
 
-Les fonctions ML existantes sont conservées et testées séparément sur des données synthétiques. **Les recommandations sur le stock opérationnel restent indisponibles tant qu'un historique correspondant et des modèles validés ne sont pas explicitement liés.** Le projet complet n'est donc pas déclaré finalisé ni prêt à être exposé en production.
+L’analyse de demande sur ventes importées est maintenant disponible avec progression et résultats persistés. Il faut au moins 16 semaines terminées consécutives par produit et un modèle meilleur que la méthode simple sur quatre semaines passées. Cela ne certifie ni les données ni les prévisions futures. Les anciens services ML restent testés séparément sur données synthétiques ; leurs recommandations de prix ne sont pas reliées automatiquement au stock opérationnel. Calcul Python/scikit-learn local, sans agents LLM ni consommation de tokens. Aucun stock ou prix modifié automatiquement.
+
+Une application native Flutter Android/iOS se trouve dans `mobile` : connexion sécurisée, catalogue, mouvements, prix, alertes, historiques et analyses. Les comptes disposent aussi d’une désactivation/réactivation motivée et d’une révocation de toutes les sessions avec confirmation. Suivre [Commencer en 5 minutes](docs/COMMENCER_EN_5_MINUTES.md) pour l’usage quotidien et [l’installation mobile](docs/MOBILE_INSTALLATION.md) pour les commandes techniques. Aucun déploiement de production n’est effectué.
 
 ## Installation Windows / PowerShell
 
@@ -50,7 +52,7 @@ Le serveur sert le frontend compilé et les API sur la même origine. Un seul se
 .\scripts\run.ps1 -Database 'runtime/essai.sqlite3' -Port 8000
 ```
 
-La base crée les tables `users`, `sessions`, `login_attempts`, `products`, `movements`, `price_history`, `idempotency`, `csv_imports` et `sales_history` si absentes. L'évolution CSV ajoute ces deux dernières tables au démarrage local, sans remplacer les tables existantes ni modifier leurs données. Il ne s'agit pas d'une migration distante. Les nouveaux fichiers runtime, environnements et artefacts sont ignorés. Le `.venv`, `.env.txt` et les anciens modèles déjà suivis ne sont pas retirés de Git par le `.gitignore`.
+La base crée les tables `users`, `sessions`, `login_attempts`, `products`, `movements`, `price_history`, `idempotency`, `csv_imports`, `sales_history`, `mobile_sessions`, `analysis_jobs` et `user_access` si absentes. Les trois dernières sont les ajouts de cette livraison : sessions natives, analyses et accès des comptes. Aucune table existante n’est remplacée ni vidée ; les anciens comptes sont actifs par défaut. Il ne s’agit pas d’une migration distante. Les nouveaux fichiers runtime, environnements et artefacts sont ignorés. Le `.venv`, `.env.txt` et les anciens modèles déjà suivis ne sont pas retirés de Git par le `.gitignore`.
 
 ## Développement et design system
 
@@ -86,12 +88,13 @@ npx.cmd playwright install chromium
 npm.cmd test
 npm.cmd run test:design
 npm.cmd run test:imports
+npm.cmd run test:delivery
 Set-Location ..
 ```
 
-Les scripts navigateur créent et arrêtent leurs propres serveurs, sans supprimer les données opérationnelles. `browser.mjs` utilise le port 8010 et une SQLite neuve sous `runtime/browser-qa-*`. Le script design requiert les ports 8000 et 5173 libres et utilise une autre base QA. Les captures et résultats sont dans `docs/evidence`. Les comptes et produits utilisés sont identifiés comme recette.
+Les scripts navigateur créent et arrêtent leurs propres serveurs, sans supprimer les données opérationnelles. `browser.mjs` utilise le port 8010 et une SQLite neuve sous `runtime/browser-qa-*`. Le script design utilise 8000 et 5281 ; la recette livraison utilise 8013. Ces ports doivent être libres. Les captures et résultats sont dans `docs/evidence`. Les comptes et produits utilisés sont identifiés comme recette.
 
-Résultats vérifiés : **58 tests Python réussis**, compilation TypeScript/Vite réussie, trois recettes navigateur réussies et zéro erreur JavaScript relevée. L'audit npm précédent était sans vulnérabilité signalée ; aucune dépendance ajoutée pour l'import. Voir [l'état détaillé](docs/PROJECT_STATE.md) et [la recette CSV](docs/evidence/imports-results.json). Un avertissement Starlette signale la future évolution de son adaptateur httpx de test ; aucun test n'échoue.
+Résultats serveur : **70 tests Python réussis**, `pip check` sans incohérence, compilation TypeScript/Vite réussie. Les preuves web et natives et leurs limites sont dans [l’état détaillé](docs/PROJECT_STATE.md) et [l’inventaire de recette](docs/QA_INVENTORY.md). Un avertissement Starlette signale la future évolution de son adaptateur httpx de test ; aucun test serveur n’échoue.
 
 ## Services ML
 
@@ -107,7 +110,7 @@ $env:REPORTS_DIR = Join-Path $PWD.Path 'artifacts/reports'
 & .\.venv-local\Scripts\python.exe -m uvicorn services.ml_inference_service.app.main:app --host 127.0.0.1 --port 8002
 ```
 
-Les routes et entraînements correspondants sont dans [la carte du projet](docs/PROJECT_MAP.md). Un POST d'entraînement écrit des modèles et rapports ; il ne doit viser que des dossiers que vous contrôlez. Aucun entraînement n'est exposé dans le frontend métier. La recette automatisée vérifie cinq entraînements et six inférences sur des CSV synthétiques isolés, pas la qualité prédictive sur des données réelles.
+Les routes et entraînements correspondants sont dans [la carte du projet](docs/PROJECT_MAP.md). Un POST des anciens services d’entraînement écrit des modèles et rapports ; il ne doit viser que des dossiers que vous contrôlez. Ces services restent séparés du frontend métier. L’analyse opérationnelle `/api/analysis/jobs` entraîne son modèle en mémoire depuis SQLite sans joblib. La recette vérifie cinq entraînements et six inférences anciens sur CSV synthétiques isolés, ainsi que le nouveau parcours de demande ; elle ne prouve pas la qualité prédictive sur vos ventes réelles.
 
 ## Documentation et limites
 
@@ -118,4 +121,4 @@ Les routes et entraînements correspondants sont dans [la carte du projet](docs/
 - [Inventaire de recette](docs/QA_INVENTORY.md)
 - [Revue backend et corrections](docs/REVIEW_BACKEND.md)
 
-Non livrés : lien d'un historique réel aux recommandations ML, qualité prédictive validée, activation/récupération de mot de passe par email, désactivation/révocation globale de comptes, frontière multi-organisation, export/pipeline des datasets ML, déploiement et certification de production. Aucun achat, publication, migration de production ou push n'a été effectué. Les données saisies sont locales ; aucune synchronisation cloud n'est activée.
+Non livrés : qualité prédictive sur un historique métier réel, liaison des anciens modèles de prix, récupération de mot de passe par email, frontière multi-organisation, file de travaux durable, sauvegarde/restauration certifiée, notifications push, compilation/signature iOS sur Mac, distribution mobile et déploiement HTTPS distant. Aucun achat, publication, migration de production ou push n’a été effectué. Les données sont partagées entre les clients par le même backend local ; aucune synchronisation cloud n’est activée.

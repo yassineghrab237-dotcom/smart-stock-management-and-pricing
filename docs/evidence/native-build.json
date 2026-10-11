@@ -1,0 +1,16 @@
+{
+  "date": "2026-10-11T01:01:23.1985558Z",
+  "status": "COMPILED_DEBUG",
+  "entry": "lib/main.dart",
+  "command": "flutter build apk --debug --dart-define=ALLOW_LOCAL_HTTP=true --dart-define=API_URL=http://127.0.0.1:8000",
+  "flutter": "3.38.4",
+  "dart": "3.10.3",
+  "apk": "mobile/build/app/outputs/flutter-apk/app-debug.apk",
+  "bytes": 190740309,
+  "sha256": "F5C887B72B105F244E37C6357B5B2D8BB0A19A0B92D8A4FAE83E2F3E429F8351",
+  "androidIntegration": "PASS - one complete real-backend scenario, isolated SQLite",
+  "flutterTests": 8,
+  "flutterAnalyze": "No issues found",
+  "ios": "Sources only; no macOS/Xcode compilation or signing",
+  "deployed": false
+}

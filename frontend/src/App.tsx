@@ -12,6 +12,8 @@ import {
   Users,
   Palette,
   FileUp,
+  BrainCircuit,
+  BookOpen,
 } from "lucide-react";
 import { api, post, errorMessage, type User } from "./api";
 import { Badge, Button, Field, Loading, Notice } from "./ui";
@@ -25,6 +27,8 @@ import {
 } from "./pages";
 import ProductsPage from "./Products";
 import ImportsPage from "./features/imports/ImportsPage";
+import AnalysisPage from "./features/analysis/AnalysisPage";
+import HelpPage from "./features/help/HelpPage";
 const navigation = [
   { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard },
   { id: "products", label: "Produits et stock", icon: Package },
@@ -32,6 +36,8 @@ const navigation = [
   { id: "alerts", label: "Alertes", icon: Bell },
   { id: "pricing", label: "Prix et recommandations", icon: Tags },
   { id: "imports", label: "Imports CSV", icon: FileUp },
+  { id: "analysis", label: "Analyser les ventes", icon: BrainCircuit },
+  { id: "help", label: "Guide de démarrage", icon: BookOpen },
 ];
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -304,7 +310,13 @@ export default function App() {
           {page === "pricing" && (
             <PricingPage write={write} revision={revision} refresh={refresh} />
           )}
-          {page === "users" && user.role === "ADMIN" && <UsersPage />}
+          {page === "users" && user.role === "ADMIN" && (
+            <UsersPage actorId={user.id} />
+          )}
+          {page === "analysis" && (
+            <AnalysisPage user={user} navigate={changePage} />
+          )}
+          {page === "help" && <HelpPage navigate={changePage} />}
           {page === "imports" && (
             <ImportsPage write={write} refresh={refresh} />
           )}

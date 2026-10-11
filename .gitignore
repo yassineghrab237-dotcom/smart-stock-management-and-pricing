@@ -18,3 +18,10 @@ frontend/dist/
 .npm-cache/
 frontend/.npm-cache/
 *.log
+mobile/.dart_tool/
+mobile/build/
+mobile/android/.gradle/
+mobile/android/local.properties
+mobile/.flutter-plugins-dependencies
+mobile/ios/Pods/
+mobile/ios/.symlinks/
