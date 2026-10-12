@@ -10,7 +10,7 @@ import {
   useResource,
 } from "../../ui";
 
-type Kind = "catalogue" | "sales";
+type Kind = "catalogue" | "sales" | "transactions";
 interface Source {
   kind: Kind;
   csv_text: string;
@@ -48,11 +48,20 @@ interface Sale {
   unit_price: string;
 }
 const templates = {
+  transactions:
+    "reference,sku,sold_on,quantity,unit_price_ttc,tax_rate,discount_ttc,unit_cost_ht,customer_id\n",
   catalogue:
     "sku,name,category,unit,cost_price,current_price,min_price,threshold_min,threshold_max\n",
   sales: "reference,sku,sold_on,quantity,unit_price\n",
 };
 const labels: Record<string, string> = {
+  unit_price_ttc: "Prix unitaire TTC (TND)",
+  tax_rate: "Taxe (%)",
+  discount_ttc: "Remise unitaire TTC (TND)",
+  unit_cost_ht: "Coût unitaire HT (TND)",
+  customer_id: "Identifiant client CRM",
+  stock_before: "Stock actuel",
+  stock_after_batch: "Stock après tout le fichier",
   name: "Nom",
   category: "Catégorie",
   unit: "Unité",
@@ -134,7 +143,7 @@ export default function ImportsPage({
       setSuccess(
         result.already_imported
           ? "Ce fichier avait déjà été enregistré. Aucune ligne ajoutée."
-          : `${result.count} ligne(s) importée(s). ${kind === "sales" ? "Le stock actuel est conservé." : "Les nouveaux produits ont un stock de zéro."}`,
+          : `${result.count} ligne(s) importée(s). ${kind === "transactions" ? "Ventes confirmées et stock décrémenté. Consultez Ventes et devis." : kind === "sales" ? "Le stock actuel est conservé." : "Les nouveaux produits ont un stock de zéro."}`,
       );
       setConfirm(false);
       setPreview(null);
@@ -194,16 +203,28 @@ export default function ImportsPage({
             >
               Historique des ventes
             </Button>
+            <Button
+              variant={kind === "transactions" ? "primary" : "secondary"}
+              aria-pressed={kind === "transactions"}
+              disabled={busy}
+              onClick={() => changeKind("transactions")}
+            >
+              Ventes avec sortie de stock
+            </Button>
           </div>
           <h2>
             {kind === "catalogue"
               ? "Ajouter de nouveaux produits"
-              : "Importer les ventes passées"}
+              : kind === "transactions"
+                ? "Importer des ventes avec sortie de stock"
+                : "Importer les ventes passées"}
           </h2>
           <p>
             {kind === "catalogue"
               ? "Les SKU existants sont refusés. Aucun produit n’est remplacé et le stock initial reste à zéro."
-              : "Chaque SKU doit correspondre exactement à un produit existant. Les ventes passées ne déclenchent aucun mouvement et ne modifient pas le stock actuel."}
+              : kind === "transactions"
+                ? "Ventes en TND : prix et remise unitaires TTC, taxe par ligne, coût HT facultatif. Même référence pour les lignes du même panier ; date et client identiques. customer_id est l’identifiant CRM, facultatif. Le stock sera décrémenté maintenant : n’importez pas ici des ventes dont la sortie de stock est déjà enregistrée."
+                : "Chaque SKU doit correspondre exactement à un produit existant. Les ventes passées ne déclenchent aucun mouvement et ne modifient pas le stock actuel."}
           </p>
           <p>
             CSV UTF-8 · 1 Mo maximum · 1 000 lignes maximum · montants avec un
@@ -235,7 +256,7 @@ export default function ImportsPage({
             </select>
           </div>
           <Field
-        key={`${kind}-${revision}`}
+            key={`${kind}-${revision}`}
             label="Fichier CSV"
             type="file"
             accept=".csv,text/csv"
@@ -313,8 +334,12 @@ export default function ImportsPage({
                 <article className="import-row" key={entry.id}>
                   <strong>{entry.filename}</strong>
                   <span>
-                    {entry.kind === "sales" ? "Ventes" : "Catalogue"} ·{" "}
-                    {entry.row_count} ligne(s) · {entry.actor_name}
+                    {entry.kind === "transactions"
+                      ? "Ventes avec sortie de stock"
+                      : entry.kind === "sales"
+                        ? "Ventes historiques"
+                        : "Catalogue"}{" "}
+                    · {entry.row_count} ligne(s) · {entry.actor_name}
                   </span>
                   <time>
                     {new Date(entry.created_at).toLocaleString("fr-FR")}
@@ -327,7 +352,7 @@ export default function ImportsPage({
           ))}
       </section>
       <section className="panel import-panel">
-        <h2>Ventes importées</h2>
+        <h2>Ventes historiques importées sans mouvement</h2>
         <p>
           Les 100 dernières ventes par date. Cet historique reste séparé des
           mouvements de stock ; les recommandations IA restent indisponibles
@@ -368,9 +393,11 @@ export default function ImportsPage({
             {source?.filename} ?
           </p>
           <p>
-            {kind === "sales"
-              ? "Les ventes sont ajoutées à l’historique. Le stock actuel ne change pas."
-              : "Les produits seront créés à stock zéro."}
+            {kind === "transactions"
+              ? "Les ventes seront confirmées et les quantités retirées du stock actuel. Vérifiez qu’elles n’ont jamais été enregistrées, y compris sous d’autres références. Le lot complet est annulé si une ligne échoue."
+              : kind === "sales"
+                ? "Les ventes sont ajoutées à l’historique. Le stock actuel ne change pas."
+                : "Les produits seront créés à stock zéro."}
           </p>
           <Button
             variant="secondary"

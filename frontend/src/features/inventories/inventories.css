@@ -1,0 +1,15 @@
+.inventory-selection {
+  border: 1px solid #dce4ed;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 18px 0;
+  max-height: 320px;
+  overflow: auto;
+  display: grid;
+  gap: 12px;
+}
+.inventory-selection input {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+}

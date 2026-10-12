@@ -2,6 +2,25 @@
   "name": "smart-stock-browser-validation",
   "private": true,
   "type": "module",
-  "scripts": { "test": "node browser.mjs", "test:design": "node browser-design.mjs", "test:imports": "node browser-imports.mjs", "test:delivery": "node browser-delivery.mjs" },
-  "devDependencies": { "playwright": "1.62.1" }
+  "scripts": {
+    "test": "node browser.mjs",
+    "test:design": "node browser-design.mjs",
+    "test:imports": "node browser-imports.mjs",
+    "test:market": "node browser-market.mjs",
+    "test:delivery": "node browser-delivery.mjs",
+    "test:crm": "node browser-crm.mjs",
+    "test:commerce": "node browser-commerce.mjs",
+    "test:purchases": "node browser-purchases.mjs",
+    "test:insights": "node browser-insights.mjs",
+    "test:replenishment": "node browser-replenishment.mjs",
+    "test:transactions": "node browser-transactions.mjs",
+    "test:b2b": "node browser-b2b.mjs",
+    "test:maintenance": "node browser-maintenance.mjs",
+    "test:inventories": "node browser-inventories.mjs",
+    "test:collection": "node browser-collection.mjs",
+    "test:actions": "node browser-actions.mjs"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
 }

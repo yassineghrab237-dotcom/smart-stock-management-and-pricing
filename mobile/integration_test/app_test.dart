@@ -107,7 +107,9 @@ void main() {
         method: 'PATCH',
         body: {'threshold_min': 30, 'expected_version': fresh['version']},
       );
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
       await tester.pageBack();
+      await tester.pumpAndSettle(const Duration(milliseconds: 200));
       await tester.pump(const Duration(milliseconds: 400));
       await tapText('Alertes');
       await waitText('Câble QA mobile');

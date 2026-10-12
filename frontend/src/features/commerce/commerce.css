@@ -1,0 +1,126 @@
+.commercial-page {
+  display: grid;
+  gap: 22px;
+}
+.commercial-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  border: 0;
+  padding: 0;
+  margin: 18px 0;
+}
+.commercial-fields .field {
+  margin: 0;
+}
+.commercial-fields input,
+.commercial-fields select {
+  min-width: 0;
+  width: 100%;
+}
+.commercial-line {
+  border: 1px solid #dce4ed;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 18px 0;
+}
+.commercial-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.commercial-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.commercial-list {
+  display: grid;
+  gap: 10px;
+}
+.commercial-document {
+  display: grid;
+  gap: 8px;
+  text-align: left;
+  width: 100%;
+  background: white;
+  border: 1px solid #dce4ed;
+  border-radius: 12px;
+  padding: 16px;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.commercial-document.selected {
+  border: 2px solid #08736b;
+  background: #eef8f6;
+}
+.commercial-panel {
+  min-width: 0;
+  background: white;
+  border: 1px solid #dce4ed;
+  border-radius: 16px;
+  padding: 24px;
+  overflow-wrap: anywhere;
+}
+.commercial-totals {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.commercial-totals > div {
+  background: #f1f7f6;
+  border-radius: 10px;
+  padding: 16px;
+}
+.commercial-totals strong {
+  display: block;
+  margin-top: 8px;
+}
+.commercial-item {
+  border-bottom: 1px solid #dce4ed;
+  padding: 12px 0;
+}
+.commercial-check {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  line-height: 1.6;
+}
+.commercial-fields .commercial-check input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.commercial-cancel {
+  margin: 20px 0;
+}
+.commercial-cancel summary {
+  cursor: pointer;
+  color: #526174;
+}
+.commercial-footnote {
+  color: #526174;
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 24px;
+}
+@media (max-width: 850px) {
+  .commercial-layout {
+    grid-template-columns: 1fr;
+  }
+  .commercial-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 550px) {
+  .commercial-fields,
+  .commercial-list,
+  .commercial-totals {
+    grid-template-columns: 1fr;
+  }
+  .commercial-panel {
+    padding: 18px;
+  }
+}

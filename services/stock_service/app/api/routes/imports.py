@@ -17,12 +17,14 @@ from services.stock_service.app.schemas.product_schemas import (
     normalize_price,
 )
 
+from services.stock_service.app.services.transaction_import import preview_transactions, commit_transactions
+
 router = APIRouter(prefix="/imports", tags=["Imports CSV"])
 
 
 class ImportInput(BaseModel):
     model_config = ConfigDict(extra="forbid", strict=True)
-    kind: Literal["catalogue", "sales"]
+    kind: Literal["catalogue", "sales", "transactions"]
     csv_text: str = Field(min_length=1, max_length=1000000)
     filename: str = Field(default="import.csv", min_length=1, max_length=180)
     delimiter: Literal[",", ";"] = ","
@@ -46,6 +48,8 @@ def integer(value):
 
 
 def preview(db, body):
+    if body.kind == "transactions":
+        return preview_transactions(db, body)
     reader = csv.reader(
         io.StringIO(body.csv_text.lstrip("\ufeff")),
         delimiter=body.delimiter,
@@ -122,6 +126,8 @@ def preview(db, body):
                         (data["reference"],),
                     ).fetchone():
                         raise ValueError("Référence de vente déjà importée")
+                    if db.execute("SELECT 1 FROM commercial_documents WHERE reference=?", (data["reference"],)).fetchone():
+                        raise ValueError("Référence déjà présente dans les documents commerciaux")
                     if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", data["sold_on"]):
                         raise ValueError("Date attendue : AAAA-MM-JJ")
                     sold_on = date.fromisoformat(data["sold_on"])
@@ -213,6 +219,9 @@ def commit(body: ImportCommit, request: Request, user=Depends(editor)):
             ),
         )
         import_id = cursor.lastrowid
+        if body.kind == "transactions":
+            commit_transactions(db, result["rows"], user["id"], stamp, import_id)
+            return {"id": import_id, "count": result["count"], "already_imported": False}
         for entry in result["rows"]:
             data = entry["data"]
             if body.kind == "catalogue":

@@ -19,6 +19,39 @@ export default function HelpPage({
           Ouvrir les produits
         </Button>
       </div>
+      <section className="panel padded">
+        <h2>Votre parcours commercial</h2>
+        <p>
+          Créez clients et fournisseurs, préparez un devis ou une vente, puis
+          confirmez la vente pour déduire le stock. Les retours sont liés à la
+          vente d’origine.
+        </p>
+        <p>
+          Dans Achats fournisseurs, une commande n’augmente pas le stock : seule
+          sa réception le fait. Réapprovisionnement tient compte des commandes
+          et brouillons déjà engagés.
+        </p>
+        <p>
+          Rentabilité et paniers classe les produits par contribution connue.
+          Dans Veille concurrentielle, renseignez l’identité, activez les URL et
+          validez les variantes avant comparaison. Les collectes fonctionnent
+          tant que le serveur est ouvert.
+        </p>
+        <p>
+          Sur Android : Plus → Espace commercial pour consulter, confirmer,
+          réceptionner et compter. Les formulaires détaillés, imports, retours
+          et sauvegardes restent sur le web.
+        </p>
+        <div className="collection-actions">
+          <Button onClick={() => navigate("commerce")}>Ventes et devis</Button>
+          <Button variant="secondary" onClick={() => navigate("replenishment")}>
+            Préparer le réassort
+          </Button>
+          <Button variant="secondary" onClick={() => navigate("market")}>
+            Suivre la concurrence
+          </Button>
+        </div>
+      </section>
       <div className="help-grid">
         {[
           [

@@ -1,0 +1,22 @@
+.replenishment-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  line-height: 1.5;
+  font-size: 13px;
+}
+.replenishment-details dd {
+  margin: 0;
+  text-align: right;
+}
+.policy-history {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f2f6f6;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+.replenishment-details + .commercial-actions {
+  margin-top: 16px;
+}

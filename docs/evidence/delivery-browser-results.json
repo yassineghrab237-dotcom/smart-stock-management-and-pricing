@@ -1,5 +1,5 @@
 {
-  "date": "2026-10-12T10:33:39.859Z",
+  "date": "2026-10-12T14:04:38.487Z",
   "checks": [
     "Accueil vide avec première action et guide réel 390/768/1440 sans overflow",
     "Import réel d’un historique explicitement QA/synthétique, calcul suivi jusqu’au résultat, contrôle temporel/baseline, aucune modification stock",

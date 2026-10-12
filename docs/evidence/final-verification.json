@@ -1,0 +1,39 @@
+{
+  "checked_at": "2026-10-12T14:22:37.792210+00:00",
+  "python": {
+    "full_suite": 155,
+    "final_targeted": 22,
+    "total_collected_tests": 157,
+    "warning": "Starlette httpx test adapter deprecation"
+  },
+  "web": {
+    "build": "PASS",
+    "core_regressions": "PASS",
+    "business_scenarios": "PASS",
+    "recipe_screens": 10,
+    "recipe_widths": [
+      1440,
+      390
+    ],
+    "business_widths": [
+      1440,
+      768,
+      390
+    ]
+  },
+  "android": {
+    "analyze": "PASS",
+    "unit_widget_tests": 11,
+    "core_integration": "PASS",
+    "business_integration": "PASS",
+    "normal_apk_rebuilt": true
+  },
+  "collection": {
+    "Tunisianet": "LIVE_PRICE_EXTRACTED",
+    "Spacenet": "LIVE_PRICE_EXTRACTED",
+    "Mytek": "LIVE_HTTP_403",
+    "automatic_matching": false
+  },
+  "recipe_url": "http://127.0.0.1:8000",
+  "deployed": false
+}

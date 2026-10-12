@@ -79,3 +79,16 @@ flutter drive --no-enable-impeller --driver=test_driver/integration.dart --targe
 ```
 
 Configurer aussi `adb -s ID_EMULATEUR reverse tcp:8012 tcp:8012`. Le test crée uniquement des produits QA et écrit ses captures sous `docs/evidence`. Redémarrer un serveur QA neuf avant une nouvelle recette complète. La compilation de ce test remplace temporairement l’APK debug : reconstruire ensuite l’APK normal avec `flutter build apk --debug ...` avant livraison.
+## Extension commerciale du 12 octobre
+
+Dans **Plus → Espace commercial**, le natif consulte les ventes/devis, achats, contacts, inventaires, contributions, décisions et observations concurrentes. Il confirme les documents commerciaux déjà préparés, réceptionne une ligne fournisseur partiellement, compte puis valide un inventaire, ajoute des notes CRM, termine une tâche et prend en charge une décision. Toutes ces écritures utilisent le même brouillon sécurisé avec clé idempotente et confirmation explicite.
+
+Création des documents multilignes, retours, configuration du réassort, collecte/revue des variantes, CSV, collaborateurs et sauvegardes se font sur le web. Les prix de veille natifs sont en consultation. Pas de parité intégrale de formulaires entre les deux interfaces.
+
+Scénario commercial Android supplémentaire :
+
+```powershell
+flutter drive --no-pub --no-enable-impeller --driver=test_driver/integration.dart --target=integration_test/business_test.dart -d ID_EMULATEUR --dart-define=ALLOW_LOCAL_HTTP=true --dart-define=API_URL=http://127.0.0.1:8012
+```
+
+Démarrer un `tests/mobile_server.py` neuf pour chaque scénario complet. Le test crée des données fictives via les mêmes API, puis vérifie les actions UI et les stocks côté serveur. Reconstruire ensuite l'APK normal, car `flutter drive` produit un APK de test.

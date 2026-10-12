@@ -1,3 +1,4 @@
+import ActionPanel from "./features/actions/ActionPanel";
 import { useCallback, useState, type FormEvent } from "react";
 import {
   Package,
@@ -255,9 +256,11 @@ export function MovementsPage({
   );
 }
 export function AlertsPage({
+  write,
   revision,
   navigate,
 }: {
+  write: boolean;
   revision: number;
   navigate: (page: string) => void;
 }) {
@@ -275,6 +278,7 @@ export function AlertsPage({
           <p>Des alertes calculées à partir des seuils de vos produits.</p>
         </div>
       </div>
+      <ActionPanel write={write} navigate={navigate} />
       <section className="panel padded">
         <div className="tabs">
           <button

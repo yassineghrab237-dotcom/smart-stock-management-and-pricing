@@ -29,18 +29,34 @@ import ProductsPage from "./Products";
 import ImportsPage from "./features/imports/ImportsPage";
 import AnalysisPage from "./features/analysis/AnalysisPage";
 import HelpPage from "./features/help/HelpPage";
+import InventoriesPage from "./features/inventories/InventoriesPage";
+import MaintenancePage from "./features/maintenance/MaintenancePage";
+import ReplenishmentPage from "./features/replenishment/ReplenishmentPage";
+import InsightsPage from "./features/insights/InsightsPage";
+import PurchasesPage from "./features/purchases/PurchasesPage";
+import CommercePage from "./features/commerce/CommercePage";
+import CrmPage from "./features/crm/CrmPage";
+import MarketPage from "./features/market/MarketPage";
 const navigation = [
   { id: "dashboard", label: "Tableau de bord", icon: LayoutDashboard },
   { id: "products", label: "Produits et stock", icon: Package },
+  { id: "commerce", label: "Ventes et devis", icon: Tags },
+  { id: "crm", label: "Clients et fournisseurs", icon: Users },
+  { id: "purchases", label: "Achats fournisseurs", icon: Package },
+  { id: "replenishment", label: "Réapprovisionnement", icon: Boxes },
+  { id: "inventories", label: "Inventaires physiques", icon: Boxes },
   { id: "movements", label: "Mouvements", icon: ArrowLeftRight },
   { id: "alerts", label: "Alertes", icon: Bell },
+  { id: "insights", label: "Rentabilité et paniers", icon: LayoutDashboard },
+  { id: "market", label: "Veille concurrentielle", icon: Tags },
   { id: "pricing", label: "Prix et recommandations", icon: Tags },
-  { id: "imports", label: "Imports CSV", icon: FileUp },
   { id: "analysis", label: "Analyser les ventes", icon: BrainCircuit },
+  { id: "imports", label: "Imports CSV", icon: FileUp },
   { id: "help", label: "Guide de démarrage", icon: BookOpen },
 ];
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
+  const [demo, setDemo] = useState(false);
   const [setup, setSetup] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -93,6 +109,7 @@ export default function App() {
     setError("");
     try {
       const status = await api<{ required: boolean }>("/auth/setup");
+      setDemo((await api<{ demo: boolean }>("/health")).demo === true);
       setSetup(status.required);
       if (!status.required) {
         try {
@@ -168,7 +185,11 @@ export default function App() {
   const write = user.role !== "VIEWER";
   const title =
     navigation.find((n) => n.id === page)?.label ??
-    (page === "users" ? "Collaborateurs" : "Catalogue des composants");
+    (page === "maintenance"
+      ? "Sauvegardes locales"
+      : page === "users"
+        ? "Collaborateurs"
+        : "Catalogue des composants");
   return (
     <div className="app">
       <a className="skip" href="#main">
@@ -206,6 +227,15 @@ export default function App() {
           ))}
         </nav>
         <div className="sidebar-bottom">
+          {user.role === "ADMIN" && (
+            <button
+              className={page === "maintenance" ? "active" : ""}
+              onClick={() => changePage("maintenance")}
+            >
+              <Boxes size={18} />
+              Sauvegardes locales
+            </button>
+          )}
           {user.role === "ADMIN" && (
             <button
               className={page === "users" ? "active" : ""}
@@ -285,11 +315,23 @@ export default function App() {
           </div>
         </header>
         <main id="main" className="main" tabIndex={-1}>
+          {demo && (
+            <Notice success>
+              Environnement de recette · données fictives. Les opérations de
+              cette base servent uniquement à vos essais.
+            </Notice>
+          )}
           {!write && (
             <div className="readonly">
               <Badge>Lecture seule</Badge> Vous pouvez consulter les données.
               Les opérations sont réservées aux gestionnaires.
             </div>
+          )}
+          {page === "inventories" && (
+            <InventoriesPage write={write} refresh={refresh} />
+          )}
+          {page === "maintenance" && user.role === "ADMIN" && (
+            <MaintenancePage />
           )}
           {page === "dashboard" && (
             <DashboardPage revision={revision} navigate={changePage} />
@@ -305,7 +347,11 @@ export default function App() {
             />
           )}
           {page === "alerts" && (
-            <AlertsPage revision={revision} navigate={changePage} />
+            <AlertsPage
+              revision={revision}
+              navigate={changePage}
+              write={write}
+            />
           )}
           {page === "pricing" && (
             <PricingPage write={write} revision={revision} refresh={refresh} />
@@ -316,6 +362,18 @@ export default function App() {
           {page === "analysis" && (
             <AnalysisPage user={user} navigate={changePage} />
           )}
+          {page === "replenishment" && (
+            <ReplenishmentPage write={write} navigate={changePage} />
+          )}
+          {page === "insights" && <InsightsPage />}
+          {page === "purchases" && (
+            <PurchasesPage write={write} refresh={refresh} />
+          )}
+          {page === "commerce" && (
+            <CommercePage write={write} refresh={refresh} />
+          )}
+          {page === "crm" && <CrmPage write={write} />}
+          {page === "market" && <MarketPage write={write} />}
           {page === "help" && <HelpPage navigate={changePage} />}
           {page === "imports" && (
             <ImportsPage write={write} refresh={refresh} />
@@ -328,7 +386,8 @@ export default function App() {
             ))}
         </main>
         <footer className="footer">
-          Smart Stock · Les montants sont affichés sans devise ni taxe présumée.
+          Precios · Ventes et achats en TND. La base fiscale des anciens prix
+          reste à renseigner.
         </footer>
       </div>
     </div>

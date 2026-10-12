@@ -1,67 +1,54 @@
 # État de livraison — 12 octobre 2026
 
-## Optimisation de la demande
+Le périmètre commercial local est implémenté pour recette. Le dépôt distant n'a pas été modifié. Aucune donnée opérationnelle n'a servi aux tests, aucun compte réel ou secret n'a été remplacé, aucun achat ou déploiement effectué.
 
-Le moteur v2 ajoute des indicateurs sur les quatre semaines récentes, compare trois configurations sur deux périodes temporelles antérieures au contrôle final et conserve les réglages initiaux si le gain de validation ne dépasse pas 5 %. Le réglage automatique commence à 24 semaines ; de 16 à 23, les paramètres restent fixes. Le contrôle final impose de battre trois méthodes simples. L’empreinte inclut la version de méthode : les anciens jobs sont conservés et signalés périmés.
+## Fonctions et limites
 
-Suite serveur actuelle : **78 tests réussis**. TypeScript/Vite compilés et recette Chromium livraison réussie. Le benchmark compare huit séries synthétiques : deux erreurs améliorées, cinq identiques à quatre décimales, une dégradée ; deux prévisions supplémentaires masquées parce qu’une méthode simple est parfaite. Le calcul est plus coûteux. Ces cas ont servi au développement et ne prouvent pas un gain sur des ventes réelles. Voir [les mesures détaillées](DEMAND_OPTIMIZATION.md).
-
-Les validations natives de parcours complet ci-dessous datent du 11 octobre ; cette évolution conserve le contrat API et ne change que le texte natif expliquant les résultats périmés.
-
-Le 12 octobre : `flutter analyze` sans erreur, 8 tests Flutter réussis et APK debug normal recompilé ; empreinte actualisée dans evidence/native-build.json. Les captures web 390/768/1440 montrent la nouvelle méthode et la référence comparée ; la vue 390 a aussi été inspectée visuellement.
-
-## Résultat local
-
-Le périmètre réalisable sur ce PC comprend le cœur FastAPI/SQLite, le web React/TypeScript français, les imports CSV, la gestion des accès, une analyse de demande sur ventes importées et un client natif Flutter Android/iOS. Aucun achat, push, publication, migration distante ou déploiement. Les CSV de démonstration, le `.venv`, `.env.txt` et les 40 joblib historiques restent conservés.
-
-| Fonction | État et preuve |
+| Fonction | État actuel |
 |---|---|
-| Connexion, rôles et sessions | TESTÉ : cookies web et Bearer mobile indépendants, jetons hachés, expiration, limite de connexion partagée |
-| Catalogue, mouvements et prix | TESTÉ : SQLite persistante, versions, transactions, idempotence, historique et permissions ; aucun stock négatif |
-| Désactivation et révocation globale | TESTÉ : ADMIN uniquement, confirmation, motif, sessions fermées, réactivation sans restaurer les anciens jetons ; aucun compte supprimé |
-| CSV catalogue et ventes | TESTÉ : aperçu, rapprochement SKU explicite, atomicité, doublons, historique ; les ventes importées ne modifient pas le stock |
-| Demande depuis les ventes SQLite | TESTÉ sur historique QA explicitement synthétique : job suivi jusqu’au résultat, validation temporelle et comparaison naïve, résultat périmé masqué |
-| Anciennes recommandations de prix ML | NON RELIÉES au stock réel ; anciens services testés séparément, aucun modèle historique chargé |
-| Web français et aide | COMPILÉ et TESTÉ dans Chromium, mobile/tablette/desktop, navigation clavier, erreurs et réseau ; captures docs/evidence |
-| App Flutter native | IMPLÉMENTÉE : connexion, catalogue, stock/prix confirmés, alertes, historique, analyses et reprise sécurisée ; analyse statique et huit tests réussis |
-| Android | COMPILÉ et TESTÉ : parcours natif complet sur émulateur, stockage sécurisé réel, reprise sans doublon et cohérence web ; QA_INVENTORY.md |
-| iOS | SOURCES et configuration Keychain livrées ; compilation/signature/recette NON EXÉCUTÉES sur ce Windows |
-| Production et boutiques | NON DÉPLOYÉ ; service local loopback, pas de clé de production, SMTP, push ou cloud |
+| Auth, rôles, révocation | Testés, contrôlés côté serveur, cookies web et Bearer mobile distincts |
+| Catalogue, stock, prix | Transactions, versions, historique et idempotence testés |
+| CRM | Contacts, fournisseurs, tâches, notes, opportunités, devis liés ; aucun envoi externe |
+| Commerce | Devis/vente/confirmation/conversion, retours, documents imprimables ; pas de facture fiscale certifiée |
+| CSV | Catalogue, historique sans mouvement, transactions avec stock ; dates métier et doublons intersources |
+| Achats | Commandes et réceptions partielles, clôture du solde, contraintes fournisseur |
+| Réassort | Min/max, stock et engagements, budget HT, minimum/colis et brouillon ; pas d'optimiseur de bénéfice |
+| Analyse commerciale | Contribution après retours, coûts manquants explicites, références phares et paniers associés |
+| Demande ML | Validation chronologique, 3 références simples, réglage borné dès 24 semaines, données opérationnelles incluses ; qualité réelle non certifiée |
+| Identité et matching | Canonique versionnée, GTIN contrôlé, référence/variante/garantie, décision humaine et historique |
+| Collecte | Worker local et file SQLite durable, URLs activées explicitement, cadence et accès bornés, erreurs visibles |
+| Sources réelles | Robots des 3 enseignes accessibles ; prix extrait sur une fiche Tunisianet et Spacenet ; Mytek HTTP 403 observé |
+| Comparaison | Même identité/variante, devise, taxes, livraison et stock annoncé, fraîcheur 24 h ; aucune écriture automatique du prix interne |
+| Décisions | Stock, échéances CRM, achats en retard, matching et prix périmés ; suivi versionné avec motif |
+| Inventaires | Comptage sans mouvement puis ajustements atomiques, conflits/recompte, historique |
+| Maintenance | Sauvegarde SQLite cohérente, empreinte et intégrité, restauration uniquement vers nouveau fichier ; récupération admin locale auditée |
+| Web | React strict, responsive, clavier, reprise réseau et erreurs ; recettes navigateur métier |
+| Flutter | Socle + consultations commerciales, confirmation des documents existants, réceptions, comptages, CRM et décisions ; détail de validation ci-dessous |
+| Production / iOS | Non déployée ; compilation/signature iOS indisponibles sous Windows |
 
-## Architecture et données
+Les produits d'appel ne peuvent être prouvés par une corrélation de panier. Les frais externes, la valorisation comptable du stock et la rotation en valeur demandent une politique de coût et des données exhaustives. Les rôles ne constituent pas une séparation multi-organisation. L'étude de toutes les entreprises du marché n'est pas couverte : trois enseignes et les fiches configurées sont suivies.
 
-Le web et le mobile utilisent les mêmes routes métier et la même base du service. La session mobile dure douze heures et ne remplace pas les cookies. Le mot de passe n’est jamais sauvegardé par Flutter. Les mouvements/prix sauvegardent une requête et sa clé dans le stockage sécurisé avant envoi, et exigent une reprise manuelle après erreur. Une ancienne version provoque un refus serveur ; consulter l’historique et actualiser avant de préparer une nouvelle opération.
+## Vérifications
 
-Les ajouts de schéma sont exclusivement `CREATE TABLE IF NOT EXISTS` : `mobile_sessions`, `analysis_jobs`, `user_access`. Aucune table précédente vidée ou remplacée. Les comptes précédents restent actifs par défaut. Désactiver révoque les sessions et conserve les comptes et historiques.
+- Suite Python globale : **155 tests réussis**, puis **22 tests collecte/décisions/maintenance** après les derniers contrôles de fichier SQLite malformé, de lecture réseau et de disponibilité vérifiée. Total inventorié : 157 tests, dont un contrôle supplémentaire de disponibilité absente puis vérifiée manuellement.
+- `pip check` sans incompatibilité ; TypeScript/Vite compilés.
+- Chromium : cœur stock/prix, design/rôles, imports, livraison/ML ; CRM, commerce, achats, analyses, réassort, transactions, B2B/impression, maintenance, inventaires, collecte et décisions. Scénarios métier incluent réponses perdues, doublons, erreurs/conflits, persistance et largeurs 1440/768/390. Captures sous `docs/evidence`.
+- Recettes de collecte sur fixtures : succès, robots, erreur, identité modifiée, contradiction MPN, pause, reprise et contrôle réseau public. Les sondes réelles sont séparées dans `collection-live-probe*.json`.
+- Flutter : analyse sans erreur et **11 tests réussis**. Les deux parcours Android sur émulateur avec serveur réel sont réussis : socle stock/prix/reprise et parcours commercial vente/réception/inventaire/CRM/rentabilité. Captures natives inspectées. APK normal reconstruit après les tests (preuve dans native-build.json).
+- Un avertissement de dépréciation Starlette/httpx concerne l'adaptateur de tests ; aucun changement de dépendance gratuit.
 
-L’analyse utilise des semaines terminées, consécutives jusqu’à la semaine dernière, au moins seize par produit. Elle ne fabrique pas de ventes nulles quand une semaine est inconnue. Quatre semaines sont réservées à l’évaluation chronologique ; la prévision est cachée si le modèle ne bat pas la dernière semaine répétée. Résultats JSON et progression sont enregistrés ; date et empreinte signalent les résultats anciens. Aucun joblib chargé, stock/prix modifié ou appel LLM : zéro token API consommé par cette fonction.
+## Architecture et migrations
 
-`BackgroundTasks` n’est pas une file durable : après dix minutes sans progression, la prochaine consultation signale l’interruption et permet un nouveau lancement. Une seule analyse active par base et déduplication par empreinte évitent de répéter un calcul sur une réponse perdue. La provenance est déclarée comme historique importé par l’utilisateur, jamais certifiée automatiquement.
+FastAPI partage `libs/common/database.py`. Les mutations métier utilisent `BEGIN IMMEDIATE`, versions et clés idempotentes liées à l'acteur et au contenu. Les montants sont des Decimal textuels à quatre décimales. Les prix catalogue historiques n'acquièrent pas arbitrairement une devise ou base fiscale.
 
-## Vérifications exécutées
+Les tables additives de cette extension sont : `crm_contacts`, `crm_events`, `crm_tasks`, `crm_opportunities`, `commercial_documents`, `commercial_lines`, `commercial_returns`, `commercial_sale_dates`, `purchase_orders_local`, `purchase_lines_local`, `purchase_receipts_local`, `replenishment_policies`, `replenishment_events`, `inventory_sessions`, `inventory_lines`, `inventory_events`, `market_observations`, `product_identities`, `collection_watches`, `collection_jobs`, `collection_hosts`, `collection_events`, `decision_events`, `local_recovery_events`. Elles s'ajoutent au socle, sans suppression ni remplacement.
 
-- Suite Python complète : **78 passed**, un avertissement Starlette/httpx sans échec ; XML conservé.
-- `pip check` : aucune incompatibilité.
-- TypeScript strict et Vite : compilation réussie.
-- Recettes Chromium cœur, design, CSV et livraison : résultats JSON et captures dans `docs/evidence`, zéro erreur JavaScript relevée.
-- Livraison web : premier accueil, guide 390/768/1440, analyse complète sans écriture de stock, invalidation des prévisions, comptes activés/désactivés et révocation confirmée.
-- Flutter : `flutter analyze` sans erreur, **8 tests réussis** dont transport HTTPS, formulaires 320/390/768, même clé après réponse perdue, changement d’onglet en cours de chargement et fiche bloquée pendant son rafraîchissement.
-- Aucun test ne vise la base opérationnelle ou une identité réelle. Les captures utilisent exclusivement des comptes et produits QA.
+La collecte se lance avec le serveur local, uniquement pour les URL activées. File persistante, verrouillage de prise en charge, récupération des tâches interrompues après 20 minutes, prochaine échéance et pause conservées. Pas de fonctionnement PC éteint. `SMART_STOCK_COLLECTION=0` désactive le worker sans effacer les demandes.
 
-## Corrections issues de la recette
+Le calcul ML reste un job local en mémoire avec progression/résultat stockés. `BackgroundTasks` n'est pas une file durable ML ; une analyse inactive est signalée interrompue. Aucun joblib historique n'est chargé.
 
-La fiche native retenait brièvement l’ancien résultat pendant son rechargement, et le changement d’onglet pouvait réinterpréter la structure du précédent résultat. Les écrans attendent maintenant la fin du nouveau chargement ; les actions de prix ne peuvent plus partir avec cette ancienne version. Deux tests couvrent ces régressions. Les protections serveur avaient refusé l’écriture périmée.
+## Recette
 
-Le port 5173 étant utilisé par un autre projet sur ce PC, la recette design a été déplacée sur 5281. Aucun processus de l’autre projet n’a été arrêté.
+`run-recipe.ps1` sélectionne une base explicitement fictive ; `-New` crée une autre base. Compte généré dans son fichier `ACCES_RECETTE.txt`, non suivi dans Git. Le démarrage standard `run.ps1` conserve le choix explicite de base. Voir [les scénarios utilisateur](RECETTE_UTILISATEUR.md).
 
-## Usage et reprise
-
-Depuis la racine : `scripts/setup.ps1` puis `scripts/run.ps1`. Application à `http://127.0.0.1:8000`, SQLite `runtime/stock.sqlite3`, arrêt Ctrl+C. [Guide quotidien](COMMENCER_EN_5_MINUTES.md), [installation native](MOBILE_INSTALLATION.md), [carte du code](PROJECT_MAP.md).
-
-La variante Android locale exige un tunnel USB `adb reverse` vers le PC ; aucun accès Wi-Fi/Internet n’est activé. Après une recette `flutter drive`, reconstruire l’APK normal avant installation. Les serveurs QA et l’émulateur dédié sont arrêtés après validation ; aucun fonctionnement permanent en arrière-plan promis.
-
-## Limites restantes
-
-Il faut un Mac/Xcode pour compiler et tester iOS, une identité et signature de production pour les boutiques, et un déploiement HTTPS explicitement autorisé pour l’accès distant. La qualité prédictive sur un corpus métier réel reste à mesurer. Les recommandations de prix anciennes, délais fournisseur/escalades avancées, frontière multi-organisation, email de récupération, push, sauvegarde/restauration validée et file de travaux durable ne sont pas livrés. Aucun compte boutique, clé ou abonnement acheté ou remplacé.
-
-Les commits sont locaux, auteur technique `Codex local agent <codex@localhost>` limité à la commande ; aucune configuration Git globale modifiée. Voir `git log --oneline` pour les jalons. Le dépôt distant reste inchangé.
+Avancement de recette locale estimé : **95 % (19 lots sur 20 entièrement validés)** ; le lot restant concerne l’accès réel à Mytek (HTTP 403), pas l’existence du connecteur. Le détail de la grille est dans PROJECT_PROGRESS.md. Production et iOS ne sont pas inclus dans ce pourcentage.

@@ -123,7 +123,7 @@ export const money = (value: string | null) => {
   if (value === null) return "Non renseigné";
   const [integer, fraction = ""] = value.split(".");
   const decimal = fraction.replace(/0+$/, "").padEnd(2, "0");
-  return `${new Intl.NumberFormat("fr-FR").format(BigInt(integer))},${decimal}`;
+  return `${new Intl.NumberFormat("fr-FR").format(BigInt(integer)) === "0" && integer.startsWith("-") ? "-0" : new Intl.NumberFormat("fr-FR").format(BigInt(integer))},${decimal}`;
 };
 export const date = (value: string) =>
   new Intl.DateTimeFormat("fr-FR", {

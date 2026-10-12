@@ -1,0 +1,36 @@
+[
+  {
+    "retailer": "Tunisianet",
+    "checked_at": "2026-10-12T13:46:29.771938+00:00",
+    "robots_url": "https://www.tunisianet.com.tn/robots.txt",
+    "robots_sha256": "f394f37b2a870cb046cc523df23993008bfbf833dff257319db874f86c534dc2",
+    "robots_bytes": 2676
+  },
+  {
+    "retailer": "Mytek",
+    "checked_at": "2026-10-12T13:46:30.256049+00:00",
+    "robots_url": "https://www.mytek.tn/robots.txt",
+    "robots_sha256": "db97051af0268951691562270259a77f1a930e1acae5deaf7a5a42a006dddcae",
+    "robots_bytes": 1598
+  },
+  {
+    "retailer": "Spacenet",
+    "checked_at": "2026-10-12T13:46:30.709563+00:00",
+    "robots_url": "https://www.spacenet.tn/robots.txt",
+    "robots_sha256": "5b03debf03e5591b45c2412e7d72cc838c69e4c56e8c547ecab8940f43be1a10",
+    "robots_bytes": 4065,
+    "product_url": "https://spacenet.tn/pc-portable-tunisie/102801-pc-portable-lenovo-ideapad-slim-3-15irh10-i5-13gen-8go-512go-ssd.html",
+    "extracted": {
+      "name": "Pc Portable Lenovo IdeaPad Slim 3 15IRH10 i5 13Gén 8Go 512Go SSD 83K101LFFG",
+      "brand": "Lenovo",
+      "manufacturer_ref": "",
+      "merchant_sku": "83K101LFFG",
+      "gtin": "0",
+      "price": "2259.0000",
+      "currency": "TND",
+      "availability": "IN_STOCK",
+      "tax_basis": "UNKNOWN"
+    },
+    "content_sha256": "fd77d23fe8dc1bbf196777bca2ec9605164ec90f34b76b5217777950b4429105"
+  }
+]

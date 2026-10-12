@@ -1,0 +1,66 @@
+.document-print {
+  display: none;
+}
+@media print {
+  body:has(.document-print) {
+    background: white !important;
+  }
+  body:has(.document-print) > :not(.document-print) {
+    display: none !important;
+  }
+  .document-print {
+    display: block;
+    color: #12282c;
+    font:
+      12px/1.6 Arial,
+      sans-serif;
+    padding: 0;
+  }
+  .document-print h1 {
+    font-size: 22px;
+    margin: 20px 0;
+  }
+  .document-print header > strong {
+    font-size: 24px;
+    color: #075f58;
+  }
+  .document-print table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 24px 0;
+    table-layout: fixed;
+  }
+  .document-print th,
+  .document-print td {
+    border-bottom: 1px solid #b8c8c8;
+    text-align: right;
+    padding: 10px 6px;
+    overflow-wrap: anywhere;
+  }
+  .document-print th:first-child,
+  .document-print td:first-child {
+    width: 30%;
+    text-align: left;
+  }
+  .document-print tr {
+    break-inside: avoid;
+  }
+  .document-print section {
+    text-align: right;
+    break-inside: avoid;
+  }
+  .document-print-note {
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .document-print footer {
+    border-top: 1px solid #b8c8c8;
+    margin-top: 32px;
+    padding-top: 16px;
+    font-size: 10px;
+  }
+  @page {
+    size: A4;
+    margin: 18mm;
+  }
+}

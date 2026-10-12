@@ -83,8 +83,8 @@ export default function AnalysisPage({
           <span className="eyebrow">AIDE À LA DÉCISION</span>
           <h1>Analyser les ventes</h1>
           <p>
-            Estimer la demande à partir de votre historique importé, puis
-            vérifier ses limites.
+            Estimer la demande à partir de vos ventes historiques et confirmées,
+            puis vérifier ses limites.
           </p>
         </div>
         {user.role !== "VIEWER" && (
@@ -100,10 +100,11 @@ export default function AnalysisPage({
       <section className="panel padded">
         <h2>Avant de commencer</h2>
         <p>
-          Importez des ventes avec les bons SKU. Chaque produit nécessite au
-          moins 16 semaines terminées consécutives, jusqu’à la semaine dernière.
-          Les semaines manquantes restent inconnues ; elles ne sont pas
-          remplacées par zéro.
+          Les ventes confirmées et les imports historiques alimentent le calcul,
+          après déduction des retours des ventes opérationnelles. Chaque produit
+          nécessite au moins 16 semaines terminées consécutives, jusqu’à la
+          semaine dernière. Les semaines manquantes restent inconnues ; elles ne
+          sont pas remplacées par zéro.
         </p>
         <p>
           À partir de 24 semaines, les réglages sont comparés sur deux périodes

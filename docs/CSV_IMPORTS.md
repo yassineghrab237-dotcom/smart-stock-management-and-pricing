@@ -54,3 +54,12 @@ npm.cmd run test:imports
 ```
 
 21 nouveaux cas Python (58 au total) et recette Chromium CSV isolée : doublons refusés, aperçu sans écriture, précision des prix, stock conservé, conflit, reprise réseau après commit, persistance, droits et 390/768/1440 sans overflow. Résultat : `docs/evidence/imports-results.json`. Les tests utilisent des bases QA ; `tests/conftest.py` isole aussi la construction du gateway global lors de la collecte pytest. Le script navigateur CSV utilise le port 8011 et arrête son propre serveur.
+
+
+## Ventes opérationnelles avec sortie de stock (TND)
+
+Choisir **Ventes avec sortie de stock**. Colonnes requises : `reference,sku,sold_on,quantity,unit_price_ttc,tax_rate`. Facultatives : `discount_ttc,unit_cost_ht,customer_id`. Prix et remise unitaires TTC, coût HT, taxe en pourcentage ; coût vide = contribution inconnue. Client = identifiant CRM local facultatif. Plusieurs SKU distincts avec même référence forment un panier, avec date et client identiques ; maximum 100 produits par vente, 1 000 lignes par fichier.
+
+La date `sold_on` est la date commerciale de Tunis ; l'enregistrement et les mouvements sont horodatés au moment de l'import. L'aperçu affiche le stock avant/après l'ensemble du fichier. La validation recontrôle toutes les lignes et versions puis crée ventes confirmées et sorties dans une transaction unique. Le même fichier renommé n'est pas rejoué ; une référence déjà dans les documents ou l'historique est refusée. Des références différentes pour une même vente ne peuvent pas être détectées automatiquement : ne pas réimporter des sorties déjà comptabilisées.
+
+Ces ventes apparaissent dans Ventes et devis, rentabilité, CRM si associé et demande ML. Les retours suivent ensuite le parcours de retour relié à la vente. L'import historique garde son contrat : aucune modification du stock et aucune marge fiscale calculée sans métadonnées.

@@ -6,7 +6,8 @@ Travailler principalement en français. Lire le README, docs/PROJECT_STATE.md et
 
 - Frontend React/TypeScript dans frontend/src : API centralisée, composants UI partagés, pages métier.
 - Entrée du cœur local : services/api_gateway/app/main.py. Auth, Stock et Alerts partagent libs/common/database.py (SQLite).
-- Entraînement et inférence ML sont conservés dans leurs services ; ils utilisent des CSV et artefacts séparés du stock opérationnel.
+- Les anciens entraînements/inférences ML restent séparés sur CSV. La demande active se trouve dans services/stock_service/app/services/analysis.py et utilise historique + ventes confirmées nettes.
+- CRM, commerce, achats, réassort, inventaires et veille partagent le gateway et SQLite. La collecte dispose d’une file durable distincte ; ne pas transformer ses candidats en prix internes ni confirmer automatiquement une variante. Voir docs/PROJECT_MAP.md.
 - Des fichiers vides subsistent : leur nom ne prouve pas une fonction active. Voir PROJECT_STATE.md pour les limites engagées.
 - Exclure .venv, .venv-local, node_modules, runtime et artefacts des recherches métier. Cibler services, libs, frontend/src, tests et docs avec rg.
 

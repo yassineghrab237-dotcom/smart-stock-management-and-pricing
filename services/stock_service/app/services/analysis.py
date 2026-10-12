@@ -3,7 +3,8 @@
 import hashlib
 import json
 from collections import defaultdict
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+from services.stock_service.app.services.insights import business_day, TUNIS
 
 from libs.common.database import connect, now
 from services.stock_service.app.services.demand_model import ALGORITHM_VERSION, forecast
@@ -19,10 +20,18 @@ def snapshot(db):
             "SELECT reference,product_id,sold_on,quantity FROM sales_history ORDER BY product_id,sold_on,reference"
         )
     ]
+    operational = [dict(r) for r in db.execute("""SELECT l.id,l.product_id,l.quantity,COALESCE(r.returned,0) returned,d.reference,d.confirmed_at,sd.sold_on
+        FROM commercial_lines l JOIN commercial_documents d ON d.id=l.document_id
+        LEFT JOIN commercial_sale_dates sd ON sd.document_id=d.id
+        LEFT JOIN (SELECT line_id,SUM(quantity) returned FROM commercial_returns GROUP BY line_id) r ON r.line_id=l.id
+        WHERE d.kind='SALE' AND d.status='CONFIRMED' ORDER BY l.id""")]
+    for row in operational:
+        sales.append(dict(reference=f"operational:{row['id']}:{row['reference']}",product_id=row['product_id'],sold_on=row['sold_on'] or business_day(row['confirmed_at']).isoformat(),quantity=row['quantity']-row['returned']))
     source = {
         "products": products,
         "sales": sales,
-        "as_of": date.today().isoformat(),
+        "as_of": datetime.now(TUNIS).date().isoformat(),
+        "source_version": "historical-and-operational-net-v1",
         "algorithm_version": ALGORITHM_VERSION,
     }
     fingerprint = hashlib.sha256(
@@ -87,7 +96,7 @@ def evaluate(product, sales, as_of):
 
 def run_analysis(path, job_id, source):
     try:
-        update(path, job_id, "RUNNING", 5, "Lecture et contrôle des ventes importées.")
+        update(path, job_id, "RUNNING", 5, "Lecture et contrôle des ventes historiques et opérationnelles.")
         by_product = defaultdict(list)
         for sale in source["sales"]:
             by_product[sale["product_id"]].append(sale)
@@ -116,7 +125,7 @@ def run_analysis(path, job_id, source):
             "Analyse terminée. Consultez les résultats et les limites par produit.",
             {
                 "products": results,
-                "source": "USER_IMPORTED_HISTORY",
+                "source": "USER_HISTORY_AND_CONFIRMED_SALES",
                 "data_authenticity": "not_verified",
                 "method": "GradientBoostingRegressor ; réglage chronologique et contrôle final contre trois méthodes simples",
                 "algorithm_version": source["algorithm_version"],

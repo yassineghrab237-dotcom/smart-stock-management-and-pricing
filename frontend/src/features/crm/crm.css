@@ -1,0 +1,136 @@
+.crm-page {
+  display: grid;
+  gap: 22px;
+}
+.crm-filters,
+.crm-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+.crm-fields {
+  border: 0;
+  padding: 0;
+  margin: 18px 0;
+}
+.crm-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 300px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: start;
+}
+.crm-list {
+  display: grid;
+  gap: 10px;
+}
+.crm-contact {
+  text-align: left;
+  border: 1px solid #dce4ed;
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  display: grid;
+  gap: 8px;
+  cursor: pointer;
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+.crm-contact.selected {
+  border: 2px solid #08736b;
+  background: #eef8f6;
+}
+.crm-contact > span {
+  color: #526174;
+}
+.crm-panel {
+  padding: 24px;
+  background: white;
+  border: 1px solid #dce4ed;
+  border-radius: 16px;
+  min-width: 0;
+}
+.crm-header,
+.crm-task {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.crm-header h2 {
+  margin-top: 0;
+}
+.crm-details {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px 20px;
+  padding: 20px 0;
+  overflow-wrap: anywhere;
+}
+.crm-details dt {
+  color: #526174;
+}
+.crm-details dd {
+  margin: 0;
+}
+.crm-task {
+  padding: 14px 0;
+  border-bottom: 1px solid #dce4ed;
+}
+.crm-task small {
+  display: block;
+  margin-top: 6px;
+}
+.crm-task-actions {
+  display: flex;
+  gap: 8px;
+}
+.crm-timeline {
+  list-style: none;
+  padding: 0;
+}
+.crm-timeline li {
+  border-left: 3px solid #bed9d5;
+  padding: 12px 18px;
+  margin: 12px 0;
+  overflow-wrap: anywhere;
+}
+.crm-timeline p {
+  white-space: pre-wrap;
+}
+.crm-activity {
+  padding: 10px 0 20px;
+}
+.crm-fields .field {
+  margin: 0;
+}
+.crm-fields input,
+.crm-fields select {
+  min-width: 0;
+  width: 100%;
+}
+@media (max-width: 850px) {
+  .crm-layout {
+    grid-template-columns: 1fr;
+  }
+  .crm-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 550px) {
+  .crm-fields,
+  .crm-filters,
+  .crm-list {
+    grid-template-columns: 1fr;
+  }
+  .crm-panel {
+    padding: 18px;
+  }
+  .crm-details {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+  .crm-details dd {
+    margin-bottom: 10px;
+  }
+}

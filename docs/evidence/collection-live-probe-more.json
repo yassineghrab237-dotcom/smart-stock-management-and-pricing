@@ -1,0 +1,26 @@
+[
+  {
+    "retailer": "Tunisianet",
+    "checked_at": "2026-10-12T13:51:21.232922+00:00",
+    "product_url": "https://www.tunisianet.com.tn/pc-portable-tunisie/57699-pc-portable-lenovo-v15-g2-itl-i5-11e-gen-8-go-noir.html",
+    "extracted": {
+      "name": "Pc Portable Lenovo V15 G2 ITL / i5 11è Gén / 8 Go / Noir",
+      "brand": "",
+      "manufacturer_ref": "",
+      "merchant_sku": "",
+      "gtin": "",
+      "price": "1684.0000",
+      "currency": "TND",
+      "availability": "UNKNOWN",
+      "tax_basis": "UNKNOWN"
+    },
+    "content_sha256": "9835f47e597baa72aef14478e5807e0daf5621628f3198e1dc342bde6744f0b7",
+    "robots_sha256": "f394f37b2a870cb046cc523df23993008bfbf833dff257319db874f86c534dc2"
+  },
+  {
+    "retailer": "Mytek",
+    "checked_at": "2026-10-12T13:51:32.003080+00:00",
+    "product_url": "https://www.mytek.tn/pc-portable-gamer-dell-alienware-16-aurora-intel-core-5-210h-16go-rtx-3050.html",
+    "error": "Accès HTTP 403. Aucun contournement ni prix enregistré."
+  }
+]

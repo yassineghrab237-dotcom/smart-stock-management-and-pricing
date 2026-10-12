@@ -1,3 +1,4 @@
+import 'business/business_hub.dart';
 import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../services/api.dart';
@@ -437,6 +438,15 @@ class _WorkspaceState extends State<Workspace> with WidgetsBindingObserver {
           }
           if (tab == 4) {
             children.addAll([
+              ActionButton(
+                'Espace commercial',
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BusinessHub(api: widget.api),
+                  ),
+                ),
+              ),
               Text(
                 'Analyses et paramètres',
                 style: Theme.of(context).textTheme.headlineSmall,
