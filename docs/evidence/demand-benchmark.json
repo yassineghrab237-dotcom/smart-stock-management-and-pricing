@@ -1,0 +1,134 @@
+{
+  "date": "2026-10-12T10:33:28.260506+00:00",
+  "scope": "SYNTHETIC_ONLY - final holdout four weeks; tuning on earlier data. No proof of accuracy on real sales.",
+  "results": [
+    {
+      "scenario": "constant",
+      "weeks": 52,
+      "old_model_mae": 0.0,
+      "new_model_mae": 0.0,
+      "old_forecast_shown": false,
+      "new_forecast_shown": false,
+      "best_simple_mae": 0.0,
+      "selected_parameters": {
+        "n_estimators": 100,
+        "max_depth": 2,
+        "min_samples_leaf": 1
+      },
+      "old_seconds": 0.0293,
+      "new_seconds": 0.1872
+    },
+    {
+      "scenario": "cycle_2",
+      "weeks": 52,
+      "old_model_mae": 0.0008,
+      "new_model_mae": 0.0008,
+      "old_forecast_shown": true,
+      "new_forecast_shown": false,
+      "best_simple_mae": 0.0,
+      "selected_parameters": {
+        "n_estimators": 100,
+        "max_depth": 2,
+        "min_samples_leaf": 1
+      },
+      "old_seconds": 0.0592,
+      "new_seconds": 0.1832
+    },
+    {
+      "scenario": "cycle_3",
+      "weeks": 54,
+      "old_model_mae": 0.0006,
+      "new_model_mae": 0.0006,
+      "old_forecast_shown": true,
+      "new_forecast_shown": true,
+      "best_simple_mae": 26.25,
+      "selected_parameters": {
+        "n_estimators": 100,
+        "max_depth": 2,
+        "min_samples_leaf": 1
+      },
+      "old_seconds": 0.0733,
+      "new_seconds": 0.2324
+    },
+    {
+      "scenario": "cycle_4",
+      "weeks": 52,
+      "old_model_mae": 0.0006,
+      "new_model_mae": 0.0006,
+      "old_forecast_shown": true,
+      "new_forecast_shown": false,
+      "best_simple_mae": 0.0,
+      "selected_parameters": {
+        "n_estimators": 100,
+        "max_depth": 2,
+        "min_samples_leaf": 1
+      },
+      "old_seconds": 0.0572,
+      "new_seconds": 0.2101
+    },
+    {
+      "scenario": "hausse_lineaire",
+      "weeks": 52,
+      "old_model_mae": 7.5612,
+      "new_model_mae": 7.5612,
+      "old_forecast_shown": false,
+      "new_forecast_shown": false,
+      "best_simple_mae": 3.0,
+      "selected_parameters": {
+        "n_estimators": 100,
+        "max_depth": 2,
+        "min_samples_leaf": 1
+      },
+      "old_seconds": 0.0366,
+      "new_seconds": 0.1968
+    },
+    {
+      "scenario": "bruit",
+      "weeks": 52,
+      "old_model_mae": 29.0431,
+      "new_model_mae": 16.1982,
+      "old_forecast_shown": false,
+      "new_forecast_shown": false,
+      "best_simple_mae": 10.5,
+      "selected_parameters": {
+        "n_estimators": 100,
+        "max_depth": 2,
+        "min_samples_leaf": 1
+      },
+      "old_seconds": 0.0296,
+      "new_seconds": 0.2424
+    },
+    {
+      "scenario": "cycle_bruite",
+      "weeks": 54,
+      "old_model_mae": 3.9686,
+      "new_model_mae": 4.4168,
+      "old_forecast_shown": true,
+      "new_forecast_shown": true,
+      "best_simple_mae": 26.8125,
+      "selected_parameters": {
+        "n_estimators": 50,
+        "max_depth": 1,
+        "min_samples_leaf": 2
+      },
+      "old_seconds": 0.0683,
+      "new_seconds": 0.201
+    },
+    {
+      "scenario": "changement_regime",
+      "weeks": 54,
+      "old_model_mae": 32.4239,
+      "new_model_mae": 29.1499,
+      "old_forecast_shown": true,
+      "new_forecast_shown": true,
+      "best_simple_mae": 31.25,
+      "selected_parameters": {
+        "n_estimators": 100,
+        "max_depth": 2,
+        "min_samples_leaf": 1
+      },
+      "old_seconds": 0.0639,
+      "new_seconds": 0.2989
+    }
+  ]
+}

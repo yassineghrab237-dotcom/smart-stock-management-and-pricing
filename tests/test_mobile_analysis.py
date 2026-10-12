@@ -262,7 +262,7 @@ def import_weeks(client, quantities, missing=None):
 
 
 def test_analysis_temporal_evaluation_not_writes_stock_prices(client):
-    item, job = import_weeks(client, [20, 80] * 12)
+    item, job = import_weeks(client, [20, 50, 80] * 8)
     forecast = job["result"]["products"][0]
     assert job["status"] == "SUCCEEDED" and forecast["status"] == "available"
     assert (

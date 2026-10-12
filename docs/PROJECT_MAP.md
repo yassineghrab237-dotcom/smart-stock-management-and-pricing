@@ -27,7 +27,7 @@ flowchart LR
 | Jeton natif indépendant | services/auth_service/app/api/routes/mobile.py, libs/common/security.py |
 | Désactivation et révocation globale | services/auth_service/app/api/routes/users.py, frontend/src/features/users/AccountActions.tsx |
 | Tâches et déduplication | services/stock_service/app/api/routes/analysis.py |
-| Prévision et validation chronologique | services/stock_service/app/services/analysis.py |
+| Prévision et validation chronologique | services/stock_service/app/services/analysis.py ; demand_model.py pour le réglage v2 et les trois références |
 | Analyse web et aide utilisateur | frontend/src/features/analysis, frontend/src/features/help |
 | Recette native sur backend réel | mobile/integration_test/app_test.dart, tests/mobile_server.py, tests/mobile-web-check.mjs |
 | Régressions et recette livraison | tests/test_mobile_analysis.py, mobile/test, tests/browser-delivery.mjs |
@@ -44,7 +44,7 @@ API supplémentaires, toutes préfixées `/api` :
 
 Ajouts SQLite par `CREATE TABLE IF NOT EXISTS` : `mobile_sessions`, `analysis_jobs`, `user_access`. Les sessions expirent après 12 h ; les comptes précédents sont actifs par défaut. Une désactivation révoque les sessions et conserve les historiques.
 
-Le job prend un instantané explicite des produits et ventes importées, compare quatre semaines hors entraînement à la dernière semaine répétée et masque les prévisions si les données manquent ou si le modèle ne gagne pas. Les semaines inconnues ne deviennent pas des zéros. Empreinte + date permettent de signaler un résultat périmé. Aucun ancien joblib lu, aucune écriture de stock/prix, aucun service LLM ni tokens. Une tâche sans progression depuis dix minutes est signalée interrompue lors de la prochaine consultation ; `BackgroundTasks` ne constitue pas une file durable.
+Le job prend un instantané explicite des produits et ventes importées. Le moteur v2 règle trois configurations sur deux périodes anciennes à partir de 24 semaines, puis compare quatre semaines séparées à trois références (dernière semaine, moyenne récente, répétition à quatre semaines). Il masque les prévisions si les données manquent ou si le modèle ne gagne pas. Les semaines inconnues ne deviennent pas des zéros. Empreinte + date + version de méthode permettent de signaler un résultat périmé. Aucun ancien joblib lu, aucune écriture de stock/prix, aucun service LLM ni tokens. Une tâche sans progression depuis dix minutes est signalée interrompue lors de la prochaine consultation ; `BackgroundTasks` ne constitue pas une file durable. Mesures et limites : DEMAND_OPTIMIZATION.md.
 
 ## Points d'entrée
 

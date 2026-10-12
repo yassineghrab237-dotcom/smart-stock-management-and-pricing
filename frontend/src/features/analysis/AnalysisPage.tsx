@@ -18,6 +18,8 @@ interface Forecast {
   weeks: number;
   model_mae?: number;
   baseline_mae?: number;
+  baseline_name?: string;
+  tuning?: { tuned: boolean; tuning_folds: number };
 }
 interface Job {
   id: number;
@@ -104,9 +106,11 @@ export default function AnalysisPage({
           remplacées par zéro.
         </p>
         <p>
-          Le modèle est testé sur 4 semaines passées. Une prévision est affichée
-          seulement s’il fait mieux que répéter la dernière semaine. Ce contrôle
-          ne garantit pas les ventes futures.
+          À partir de 24 semaines, les réglages sont comparés sur deux périodes
+          anciennes. Les 4 dernières semaines sont réservées au contrôle final.
+          Une prévision est affichée seulement si le modèle bat trois méthodes
+          simples : dernière semaine, moyenne récente et répétition à quatre
+          semaines. Ce contrôle ne garantit pas les ventes futures.
         </p>
         <Button variant="secondary" onClick={() => navigate("imports")}>
           Ouvrir les imports CSV
@@ -159,9 +163,9 @@ export default function AnalysisPage({
           </small>
           {job.stale && (
             <Notice>
-              Les données ou la date ont changé depuis cette analyse. Ses
-              résultats sont historiques. Lancez une nouvelle analyse avant de
-              décider.
+              Les données, la date ou la méthode ont changé depuis cette
+              analyse. Ses résultats sont historiques. Lancez une nouvelle
+              analyse avant de décider.
             </Notice>
           )}
           {job.result && (
@@ -187,7 +191,15 @@ export default function AnalysisPage({
                   {p.model_mae !== undefined && (
                     <p>
                       Écart moyen lors du contrôle : modèle {p.model_mae} unités
-                      ; méthode simple {p.baseline_mae} unités.
+                      ; meilleure méthode simple {p.baseline_mae} unités
+                      {p.baseline_name ? ` (${p.baseline_name})` : ""}.
+                    </p>
+                  )}
+                  {p.tuning && (
+                    <p className="source-note">
+                      {p.tuning.tuned
+                        ? "Réglages comparés sur deux périodes antérieures au contrôle final."
+                        : "Historique court : réglages fixes, sans recherche automatique."}
                     </p>
                   )}
                 </article>

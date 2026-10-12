@@ -1,4 +1,14 @@
-# État de livraison — 11 octobre 2026
+# État de livraison — 12 octobre 2026
+
+## Optimisation de la demande
+
+Le moteur v2 ajoute des indicateurs sur les quatre semaines récentes, compare trois configurations sur deux périodes temporelles antérieures au contrôle final et conserve les réglages initiaux si le gain de validation ne dépasse pas 5 %. Le réglage automatique commence à 24 semaines ; de 16 à 23, les paramètres restent fixes. Le contrôle final impose de battre trois méthodes simples. L’empreinte inclut la version de méthode : les anciens jobs sont conservés et signalés périmés.
+
+Suite serveur actuelle : **78 tests réussis**. TypeScript/Vite compilés et recette Chromium livraison réussie. Le benchmark compare huit séries synthétiques : deux erreurs améliorées, cinq identiques à quatre décimales, une dégradée ; deux prévisions supplémentaires masquées parce qu’une méthode simple est parfaite. Le calcul est plus coûteux. Ces cas ont servi au développement et ne prouvent pas un gain sur des ventes réelles. Voir [les mesures détaillées](DEMAND_OPTIMIZATION.md).
+
+Les validations natives de parcours complet ci-dessous datent du 11 octobre ; cette évolution conserve le contrat API et ne change que le texte natif expliquant les résultats périmés.
+
+Le 12 octobre : `flutter analyze` sans erreur, 8 tests Flutter réussis et APK debug normal recompilé ; empreinte actualisée dans evidence/native-build.json. Les captures web 390/768/1440 montrent la nouvelle méthode et la référence comparée ; la vue 390 a aussi été inspectée visuellement.
 
 ## Résultat local
 
@@ -30,7 +40,7 @@ L’analyse utilise des semaines terminées, consécutives jusqu’à la semaine
 
 ## Vérifications exécutées
 
-- Suite Python complète : **70 passed**, un avertissement Starlette/httpx sans échec ; XML conservé.
+- Suite Python complète : **78 passed**, un avertissement Starlette/httpx sans échec ; XML conservé.
 - `pip check` : aucune incompatibilité.
 - TypeScript strict et Vite : compilation réussie.
 - Recettes Chromium cœur, design, CSV et livraison : résultats JSON et captures dans `docs/evidence`, zéro erreur JavaScript relevée.

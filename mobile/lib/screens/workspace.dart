@@ -524,7 +524,7 @@ class _WorkspaceState extends State<Workspace> with WidgetsBindingObserver {
               Text(j['message'] as String),
               if (j['stale'] == true)
                 const MessageCard(
-                  'Ces résultats sont anciens : les données ou la date ont changé. Relancez une analyse avant décision.',
+                  'Ces résultats sont anciens : les données, la date ou la méthode ont changé. Relancez une analyse avant décision.',
                   error: true,
                 ),
               ...((j['result'] as Json?)?['products'] as List? ?? [])

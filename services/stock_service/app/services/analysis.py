@@ -2,11 +2,11 @@
 
 import hashlib
 import json
-import math
 from collections import defaultdict
 from datetime import date, timedelta
 
 from libs.common.database import connect, now
+from services.stock_service.app.services.demand_model import ALGORITHM_VERSION, forecast
 
 
 def snapshot(db):
@@ -19,7 +19,12 @@ def snapshot(db):
             "SELECT reference,product_id,sold_on,quantity FROM sales_history ORDER BY product_id,sold_on,reference"
         )
     ]
-    source = {"products": products, "sales": sales, "as_of": date.today().isoformat()}
+    source = {
+        "products": products,
+        "sales": sales,
+        "as_of": date.today().isoformat(),
+        "algorithm_version": ALGORITHM_VERSION,
+    }
     fingerprint = hashlib.sha256(
         json.dumps(source, sort_keys=True).encode()
     ).hexdigest()
@@ -42,8 +47,6 @@ def update(path, job_id, status, progress, message, result=None):
 
 
 def evaluate(product, sales, as_of):
-    from sklearn.ensemble import GradientBoostingRegressor
-
     weeks = defaultdict(int)
     current_week = as_of - timedelta(days=as_of.weekday())
     for sale in sales:
@@ -75,38 +78,10 @@ def evaluate(product, sales, as_of):
             **result,
             "detail": "Historique ancien : la dernière semaine terminée manque. Aucune prévision actuelle présentée.",
         }
-    quantities = [weeks[w] for w in ordered]
-    features = [quantities[i - 4 : i] for i in range(4, len(quantities))]
-    targets = quantities[4:]
-    # Les quatre dernières semaines servent uniquement à l'évaluation.
-    model = GradientBoostingRegressor(n_estimators=100, max_depth=2, random_state=42)
-    model.fit(features[:-4], targets[:-4])
-    estimates = model.predict(features[-4:])
-    mae = sum(abs(float(p) - actual) for p, actual in zip(estimates, targets[-4:])) / 4
-    baseline_mae = (
-        sum(abs(x[-1] - actual) for x, actual in zip(features[-4:], targets[-4:])) / 4
-    )
-    metrics = {
-        "model_mae": round(mae, 4),
-        "baseline_mae": round(baseline_mae, 4),
-        "evaluation_weeks": 4,
-        "training_weeks": len(features) - 4,
-    }
-    if not math.isfinite(mae) or mae >= baseline_mae:
-        return {
-            **result,
-            **metrics,
-            "detail": "Sur les 4 semaines de contrôle, le modèle ne fait pas mieux que la dernière semaine connue. Prévision masquée.",
-        }
-    model.fit(features, targets)
-    prediction = max(0, float(model.predict([quantities[-4:]])[0]))
     return {
         **result,
-        **metrics,
-        "status": "available",
-        "prediction": round(prediction, 2),
+        **forecast([weeks[w] for w in ordered]),
         "target_week": current_week.isoformat(),
-        "detail": "Estimation de demande, avec erreur mesurée sur 4 semaines passées. À vérifier avant décision ; aucun stock ou prix modifié.",
     }
 
 
@@ -143,7 +118,8 @@ def run_analysis(path, job_id, source):
                 "products": results,
                 "source": "USER_IMPORTED_HISTORY",
                 "data_authenticity": "not_verified",
-                "method": "GradientBoostingRegressor ; contrôle chronologique contre dernière semaine",
+                "method": "GradientBoostingRegressor ; réglage chronologique et contrôle final contre trois méthodes simples",
+                "algorithm_version": source["algorithm_version"],
                 "as_of": source["as_of"],
             },
         )

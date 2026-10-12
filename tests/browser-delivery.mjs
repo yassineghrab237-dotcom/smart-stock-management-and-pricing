@@ -24,7 +24,7 @@ try {
   checks.push('Accueil vide avec première action et guide réel 390/768/1440 sans overflow');
   const product=(await (await context.request.post(`${url}/api/products`,{data:{sku:'QA-DEMAND',name:'Produit recette · historique synthétique'}})).json());
   const monday=new Date();monday.setUTCHours(0,0,0,0);monday.setUTCDate(monday.getUTCDate()-((monday.getUTCDay()+6)%7));
-  const rows=Array.from({length:24},(_,i)=>{const d=new Date(monday);d.setUTCDate(d.getUTCDate()-(24-i)*7);return `QA-W-${i},QA-DEMAND,${d.toISOString().slice(0,10)},${i%2?80:20},10`;});
+  const rows=Array.from({length:24},(_,i)=>{const d=new Date(monday);d.setUTCDate(d.getUTCDate()-(24-i)*7);return `QA-W-${i},QA-DEMAND,${d.toISOString().slice(0,10)},${[20,50,80][i%3]},10`;});
   const body={kind:'sales',filename:'qa-synthetic.csv',csv_text:'reference,sku,sold_on,quantity,unit_price\n'+rows.join('\n')};
   const preview=(await (await context.request.post(`${url}/api/imports/preview`,{data:body})).json());assert(preview.valid);assert.equal((await context.request.post(`${url}/api/imports/commit`,{data:{...body,preview_token:preview.preview_token}})).status(),200);
   await navigate('Analyser les ventes');await page.getByRole('button',{name:'Lancer l’analyse',exact:true}).click();await page.getByText('Terminé',{exact:true}).waitFor({timeout:60000});

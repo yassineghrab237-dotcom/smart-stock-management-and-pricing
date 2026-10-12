@@ -1,5 +1,13 @@
 # Inventaire de recette
 
+## Optimisation de la demande — 12 octobre 2026
+
+78 tests Python réussis, compilation TypeScript/Vite et recette Chromium livraison réussies. Huit nouvelles régressions couvrent le réglage indépendant du contrôle final, les limites temporelles de chaque pli, l’historique court, le gain marginal, la comparaison aux trois références, les semaines partielles et l’invalidation d’un ancien job sans effacement. Les données de la recette UI sont un cycle synthétique de trois semaines ; un cycle de deux semaines doit désormais être masqué, car la référence à quatre semaines le prévoit exactement.
+
+Le benchmark reproductible et ses limites sont dans DEMAND_OPTIMIZATION.md et evidence/demand-benchmark.json. Il ne constitue pas une validation de précision sur des données métier réelles. Les résultats ci-dessous conservent aussi l’historique de la livraison précédente.
+
+Flutter : analyse statique et 8 tests réussis, APK debug recompilé avec le texte de résultat périmé actualisé. Le parcours complet sur émulateur reste celui vérifié le 11 octobre ; il n’a pas été rejoué pour ce changement de texte. Vue web 390 inspectée et recette aux trois tailles sans débordement.
+
 ## Livraison native et analyse — 11 octobre 2026
 
 Résultats courants : **70 tests Python réussis**, `pip check` conforme, TypeScript/Vite compilés ; **8 tests Flutter réussis**, `flutter analyze` sans erreur. Quatre recettes Chromium cœur/design/CSV/livraison réussies avec zéro `pageerror` ; contrôle web des écritures natives également réussi.

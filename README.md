@@ -14,6 +14,8 @@ Application locale de gestion du stock en français. Le frontend React/TypeScrip
 
 L’analyse de demande sur ventes importées est maintenant disponible avec progression et résultats persistés. Il faut au moins 16 semaines terminées consécutives par produit et un modèle meilleur que la méthode simple sur quatre semaines passées. Cela ne certifie ni les données ni les prévisions futures. Les anciens services ML restent testés séparément sur données synthétiques ; leurs recommandations de prix ne sont pas reliées automatiquement au stock opérationnel. Calcul Python/scikit-learn local, sans agents LLM ni consommation de tokens. Aucun stock ou prix modifié automatiquement.
 
+Depuis le 12 octobre, le moteur compare trois méthodes simples et ajuste ses paramètres sur deux périodes anciennes à partir de 24 semaines, avant un contrôle final séparé. [Méthode, mesures avant/après et limites](docs/DEMAND_OPTIMIZATION.md). Le gain de précision n’est pas universel ; le calcul demande davantage de CPU.
+
 Une application native Flutter Android/iOS se trouve dans `mobile` : connexion sécurisée, catalogue, mouvements, prix, alertes, historiques et analyses. Les comptes disposent aussi d’une désactivation/réactivation motivée et d’une révocation de toutes les sessions avec confirmation. Suivre [Commencer en 5 minutes](docs/COMMENCER_EN_5_MINUTES.md) pour l’usage quotidien et [l’installation mobile](docs/MOBILE_INSTALLATION.md) pour les commandes techniques. Aucun déploiement de production n’est effectué.
 
 ## Installation Windows / PowerShell
@@ -94,7 +96,7 @@ Set-Location ..
 
 Les scripts navigateur créent et arrêtent leurs propres serveurs, sans supprimer les données opérationnelles. `browser.mjs` utilise le port 8010 et une SQLite neuve sous `runtime/browser-qa-*`. Le script design utilise 8000 et 5281 ; la recette livraison utilise 8013. Ces ports doivent être libres. Les captures et résultats sont dans `docs/evidence`. Les comptes et produits utilisés sont identifiés comme recette.
 
-Résultats serveur : **70 tests Python réussis**, `pip check` sans incohérence, compilation TypeScript/Vite réussie. Les preuves web et natives et leurs limites sont dans [l’état détaillé](docs/PROJECT_STATE.md) et [l’inventaire de recette](docs/QA_INVENTORY.md). Un avertissement Starlette signale la future évolution de son adaptateur httpx de test ; aucun test serveur n’échoue.
+Résultats serveur : **78 tests Python réussis**, `pip check` sans incohérence, compilation TypeScript/Vite réussie. Les preuves web et natives et leurs limites sont dans [l’état détaillé](docs/PROJECT_STATE.md) et [l’inventaire de recette](docs/QA_INVENTORY.md). Un avertissement Starlette signale la future évolution de son adaptateur httpx de test ; aucun test serveur n’échoue.
 
 ## Services ML
 
